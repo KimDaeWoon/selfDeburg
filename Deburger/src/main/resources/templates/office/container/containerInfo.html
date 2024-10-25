@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org/"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layouts/layout}"
+  layout:fragment="Content"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="contextPath" th:value="${contextPath}">
+    <title>Insert title here</title>
+  </head>
+  <body>
+    <main id="main" class="main">
+     <div class="pagetitle">
+			<h1 class="card-title">창고 상세 목록</h1>
+		</div>
+      <section class="section">
+        <div class="row">
+          <div class="col-lg-10">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"></h5>
+                <!-- 여기 검색 등록 -->
+				 <div class="row mb-3">
+                    <div class="col-sm-4">
+                  </div>
+                </div>
+                <!-- End Search Bar -->
+                <!-- Default Table -->
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>LOT 번호</th>
+                      <th>재료 이름</th>
+                      <th>주문 수량</th>
+                      <th>입고 일자</th>
+                      <th>현재 수량</th>
+                      <th>유통 기한</th> 
+                      <th>폐기</th>      
+                    </tr>
+                  </thead>
+                  <th:block th:each="info:${container}">
+                    <tbody>
+                      <tr>
+                      	<td th:text="${info.lot}"></td>
+                      	<td th:text="${info.materialName}"></td>
+                      	<td th:text="${info.count}"></td>
+                      	<td th:text="${#dates.format(info.inDay,'yyyy/MM/dd')}"></td>
+                      	<td th:text="${info.inCount} - ${info.outCount}"></td>
+                      	<td th:text="${#dates.format(info.expirationLimit,'yyyy/MM/dd')}"></td>
+                      	<td><button class="btn btn-primary">폐기</button></td>
+                      </tr>
+                    </tbody>
+                  </th:block>
+                </table>
+                <div class="card" style="float:right;">
+                  <div class="card-body">
+                    <a href="/deburger/container"><button class="btn btn-primary">목록</button></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+  <script>
+	const clc = $('meta[name="contextPath"]').attr('value');
+	$('tbody > tr > td > button').on('click', function(event){
+  		let btn = event.currentTarget.closest("tr");
+  		let did = $(btn).children().eq(0).text();
+	  	let url = clc + '/containerDelete?lot='+did;
+	  	location.href = url;
+  	});
+  </script>
+</html>

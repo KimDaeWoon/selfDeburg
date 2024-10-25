@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{common/layouts/login}"
+	  layout:fragment="Content">
+  </head>
+
+  <body>
+    <main>
+      <div class="container">
+        <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+                <div class="d-flex justify-content-center py-4">
+                  <a href="javascript:void(0);" class=" logo d-flex align-items-center w-auto">
+                    <img src="assets/img/디버거 로고.jpg" alt="" />
+                    <span class="d-none d-lg-block">DEBURGER</span>
+                  </a>
+                </div>
+                <!-- End Logo -->
+
+                <div class="card mb-3">
+                  <div class="card-body">
+
+                    <form class="row g-3 needs-validation" novalidate method="post">
+                      <div class="col-12">
+                        <label for="yourUsername" class="form-label">아이디</label>
+                        <div class="input-group has-validation">
+                          <input type="text" name="username" class="form-control" id="yourUsername" required />
+                          <div class="invalid-feedback">아이디를 입력해주세요!</div>
+                        </div>
+                      </div>
+						<input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                      <div class="col-12">
+                        <label for="yourPassword" class="form-label">비밀번호</label>
+                        <input type="password" name="password" class="form-control" id="yourPassword" required />
+                        <div class="invalid-feedback">비밀번호를 입력해 주세요!</div>
+                      </div>
+
+                      <div class="col-12">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe" />
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <button class="btn btn-primary w-100" type="submit">Login</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <!-- End #main -->
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"
+      ><i class="bi bi-arrow-up-short"></i
+    ></a>
+
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>

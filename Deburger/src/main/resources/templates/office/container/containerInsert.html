@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/layout}"
+	layout:fragment="Content">
+<head>
+<meta charset="UTF-8" />
+<title>입고 처리</title>
+<style>
+th, td {
+	border: solid 1px black;
+}
+</style>
+</head>
+
+<body>
+	<main id="main" class="main">
+		<div class="pagetitle">
+			<h1 class="card-title">입고 처리</h1>
+		</div>
+		<!-- End Page Title -->
+		<section class="section">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="card">
+						<div class="card-body" style="padding:10px; ">
+						<div style="text-align: right; margin: 0 0 10px 0; padding:10px;">
+								<a href="containerIn"><button type="button" class="btn btn-primary">목록</button></a>
+								<button type="button" class="btn btn-primary" onclick="mkrData()"  id="save">입고 승인</button>
+							</div>
+							<table class="col-lg-12" style="text-align: center">
+								<thead>
+									<tr>
+										<th>발주번호</th>
+											<td colspan='9' th:text="${list[0].orderNumber}"></td>
+									</tr>
+									<tr>
+										<th>등록일자</th>
+										<td colspan='9' th:text="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd')}" id = "sysdate"></td>
+									</tr>
+									<tr>
+										<th>발신 업체 이름</th>
+										<td colspan='5' id="storeNumber"
+											 th:text="${list[0].clientName}"></td>
+										<th>수신 업체 이름</th>
+										<td colspan='4' th:text="${list[0].logisticsName}"></td>
+									</tr>
+									<tr>
+										<th rowspan="3" >연락처</th>
+										<th >전화번호</th>
+										<td colspan='4'th:text="${list[0].phone}"></td>
+
+										<th rowspan="2">연락처</th>
+										<th>전화번호</th>
+										<td colspan='3'th:text="${list[0].logisticsPhone}"></td>
+
+									</tr>
+									<tr>
+										<th>이메일</th>
+										<td colspan='4' th:text="${list[0].email}"></td>
+										<th>이메일</th>
+										<td colspan='3'>info@deburger.com</td>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<th >상세 발주번호</th>
+										<th >품명</th>
+										<th colspan='2'>규격</th>
+										<th >수량</th>								
+										<th >입고 수량</th>
+										<th >제조 일자</th>
+										<th >유통 기한</th>
+										<th >소비 기한</th>
+										<th >검수</th>
+									</tr>
+									<th:block th:each="container : ${list}">
+									<tr>
+										<td  th:text="${container.detailsOrderNumber}"></td>
+										<td th:text="${container.materialName}"></td>	
+											
+										<td th:text="${container.unit}" colspan='2'></td>	
+										<td th:text="${container.count}"></td>	
+										<td ><input type="text"
+											name="allOrder" th:value="${container.count}" ></td>	
+										<td ><input type="text"
+											name="allOrder" th:value="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd')}"  ></td>	
+										<td ><input type="text"
+											name="allOrder" th:value="${#temporals.format(#temporals.createNow().plusDays(30), 'yyyy-MM-dd')}" ></td>	
+										<td style="height:30px; padding:0;"><input type="text"
+											name="allOrder" th:value="${#temporals.format(#temporals.createNow().plusDays(37), 'yyyy-MM-dd')}" style="height:30px;"></td>	
+										<td >
+											 <div class="row mb-3">
+								                  <div class="col-sm-12">
+								                    <select class="form-select" aria-label="Default select example" name="disposalOperation">
+								                      <option selected>선택</option>
+								                      <option value="e1">정상</option>
+								                      <option value="e2">폐기</option>
+								                    </select>
+								                  </div>
+							                </div>
+							            </td>	
+										<td th:text="${container.personId}" style="display:none;"></td>
+										<td th:text="${container.logisticsId}" style="display:none;"></td>
+										<td th:text="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd')}" style="display:none;"></td>
+										<td th:text="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd')}" style="display:none;"></td>
+										<td th:text="${container.materialNumber}" style="display:none;"></td>
+										<td th:text="f2" style="display:none;"></td>
+									</tr>
+									</th:block>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+</body>
+<script>
+
+
+	function mkrData(){
+  		let list = [];
+  		
+		Swal.fire({
+		    title: '입고 처리 하시겠습니까?',
+		    icon: 'warning',
+		    showCancelButton: true,
+		    confirmButtonColor: '#3085d6',
+		    cancelButtonColor: '#d33',
+		    confirmButtonText: '승인',
+		    cancelButtonText: '취소'
+		    })
+  		.then((result)=>{
+  			if(result.isConfirmed){
+  				$('tbody > tr').next().each(function(idx, item){
+  		  			let tds = $(item).children();
+  		  			let detailsOrderNumber = tds.eq(0).text(); 	
+  		  			let inDay = tds.eq(11).text();	
+  		  			let inCount = tds.eq(4).children().val(); 
+  		  			let expirationLimit = tds.eq(6).children().val(); 
+  		  			let consumptionLimit = tds.eq(7).children().val(); 
+  		  			let manufactureDay = tds.eq(5).children().val(); 
+  		  			let inspectionOperation = tds.eq(8).find('select').val();
+  		  			let personId = tds.eq(9).text();
+  					let logisticsId = tds.eq(10).text();
+  		  			
+  		  			let inOperation = tds.eq(14).text();
+  		  			let materialNumber = tds.eq(13).text();
+  		  			let stockCount = tds.eq(4).children().val();
+  					
+  		  			
+  					list.push({detailsOrderNumber, inDay, inCount,//
+  		  				expirationLimit, consumptionLimit, manufactureDay, inspectionOperation, personId, inOperation, materialNumber, stockCount, logisticsId});
+  		  		})
+  				console.log(list);
+  		  		console.log(JSON.stringify(list));
+  		 	 $.ajax({
+  		  			url: '/deburger/containerInsert',
+  		  			method:'post',
+  		  			contentType: 'application/json',
+  		  			data:JSON.stringify(list),	
+  		  			success : function(result){
+  		  				Swal.fire({
+  		                    title: '입고가 완료되었습니다.',
+  		                    icon: 'success',
+  		                  })
+  		  			},
+  		  			error : function(){
+  		  				Swal.fire({
+  		                    title: 'error 가 발생 되었습니다.',
+  		                    icon: 'error',
+  		                  })
+  		  			}
+  		  		})
+  		  		.done((ele)=>{
+  						let url1 = '/deburger/containerIn';
+  						location.href = url1;
+  		  		})  
+  			}
+  		})
+  	}
+</script>
+</html>

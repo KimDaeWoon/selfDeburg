@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/layout}" layout:fragment="Content">
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<main id="main" class="main">
+		<div class="pagetitle">
+			<h1>QnA</h1>
+			<form style="margin: 0px; width: 81.5%; display: inline-block;">
+				<p>
+					<i class="bi bi-chat-right-text-fill"></i> 고객센터 답변 시간 : 월~금
+					09:00~18:00
+				</p>
+			</form>
+			<br>
+			<!--  -->
+			<div class="row">
+
+				<!-- Sales Card -->
+				<div class="col-xxl-4 col-md-6" style="width: 30%">
+					<div class="card info-card sales-card">
+
+						<div class="filter">
+							<a class="icon" href="#" data-bs-toggle="dropdown"></a>
+						</div>
+
+						<div class="card-body">
+							<h5 class="card-title">접수</h5>
+
+							<div class="d-flex align-items-center">
+								<div
+									class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+									<i class="bi bi-chat-square-dots"></i>
+								</div>
+								<div class="ps-4">
+									<h3>
+										<span th:text="${counts.count1}"></span>
+									</h3>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<!-- End Sales Card -->
+
+				<!-- Sales Card -->
+				<div class="col-xxl-4 col-md-6" style="width: 30%">
+					<div class="card info-card sales-card">
+
+						<div class="filter">
+							<a class="icon" href="#" data-bs-toggle="dropdown"></a>
+						</div>
+
+						<div class="card-body">
+							<h5 class="card-title">처리중</h5>
+
+							<div class="d-flex align-items-center">
+								<div
+									class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+									<i class="bi bi-clock-history"></i>
+								</div>
+								<div class="ps-4">
+									<h3>
+										<span th:text="${counts.count2}"></span>
+									</h3>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<!-- End Sales Card -->
+
+				<!-- Sales Card -->
+				<div class="col-xxl-4 col-md-6" style="width: 30%">
+					<div class="card info-card sales-card">
+
+						<div class="filter">
+							<a class="icon" href="#" data-bs-toggle="dropdown"></a>
+						</div>
+
+						<div class="card-body">
+							<h5 class="card-title">완료</h5>
+
+							<div class="d-flex align-items-center">
+								<div
+									class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+									<i class="bi bi-check-circle"></i>
+								</div>
+								<div class="ps-4">
+									<h3>
+										<span th:text="${counts.count3}"></span>
+									</h3>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<!-- End Sales Card -->
+
+
+
+
+				<section class="section" style="width: 90%">
+					<div class="row">
+						<div class="col-lg-12">
+
+							<div class="card">
+								<div class="card-body">
+									<form method="POST" th:action="@{/qna/qnaListOffice}">
+										<table class="table">
+											<thead>
+												<tr>
+													<th><b>일련번호</b></th>
+													<th>문의내역</th>
+													<th>문의매장</th>
+													<th>상태</th>
+													<th>작성일</th>
+												</tr>
+											</thead>
+											<tbody>
+												<th:block th:each="list:${qnas}">
+													<tr>
+														<td th:text="${list.qnaNumber}" />
+														<td th:text="${list.title}" />
+														<td th:text="${list.storeName}" />
+														<!-- 변경했을때 이 이벤트를 발생 시켜라 -->
+														<td><select onchange="updateState()"
+															th:data-qnanumber="${list.qnaNumber}">
+																<th:block th:if="${list.writer =='접수'}">
+																	<option value="접수" selected>접수</option>
+																	<option value="처리중">처리중</option>
+																	<option value="완료">완료</option>
+																</th:block>
+																<th:block th:if="${list.writer =='처리중'}">
+																	<option value="접수">접수</option>
+																	<option value="처리중" selected>처리중</option>
+																	<option value="완료">완료</option>
+																</th:block>
+																<th:block th:if="${list.writer =='완료'}">
+																	<option value="접수">접수</option>
+																	<option value="처리중">처리중</option>
+																	<option value="완료" selected>완료</option>
+																</th:block>
+														</select></td>
+
+														<td
+															th:text="${#dates.format(
+														list.writerDay, 'yyyy-MM-dd')}"></td>
+													</tr>
+													<th:block>
+											</tbody>
+										</table>
+									</form>
+									<!-- End Table with stripped rows -->
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</section>
+
+			</div>
+
+		</div>
+	</main>
+	<script>
+   		//상태 변경 어떤 이벤트를 발생 시킬거냐면?
+     	function updateState() {
+     		let qnaNumber = $(event.target).data("qnanumber"); 
+     		let writer = $(event.target).val();              
+     
+     		let data = {qnaNumber, writer};
+     		console.log(data)
+	     	$.ajax({
+	       		method: "post",
+	       		url:"/deburger/qnaListWriterUpdate", 
+	       		contentType: "application/json",
+	       		data: JSON.stringify(data),
+	     	})
+	     		.then(result =>{
+	       			console.log(result);
+	    	 		if (result.result) {
+	           			console.log(result.target.qnaNumber + "상태 업데이트 성공!!")
+	       			} else {
+	           			console.log(result.target.qnaNumber+"상태 업데이트 실패...")
+	       			}
+	     	});
+   		}
+   		
+     	$('tbody > tr').on("click", function(event) {
+     		if(event.target.tagName=='SELECT'){
+     			return
+     		}
+     	    let num = $(event.currentTarget).children().eq(0).text();
+     	    event.preventDefault();
+     	    let url = 'qnaListInfoOffice?qnaNumber=' + num;
+     	    location.href = url;
+     	});
+     </script>
+</body>
+</html>

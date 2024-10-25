@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.deburger.app.shop.shopmain.mapper.ShopMainMapper">
+
+	<select id="listCount1" parameterType="ShopMainVO">
+select count(case when (ss.stock_count-ss.safety_stock)  <![CDATA[<]]>0
+		AND m.material_item = '원재료' then 1 end) AS mainMaterial
+		,count(case when (ss.stock_count-ss.safety_stock)  <![CDATA[<]]> 0
+		AND m.material_item = '부재료' then 1 end) AS subMaterial
+from store_stock ss join material m
+on ss.material_number = m.material_number
+where store_number=#{storeNumber}	
+		
+	</select>
+	
+		<select id="listCount2" parameterType="ShopMainVO">
+select count(case when (to_date(expiration_limit)-to_date(sysdate)) <![CDATA[<]]>0
+       AND	m.material_item = '원재료' AND s.remain_stock_count > 0 
+       AND s.disposal_operation = 'k1' then 1 end) AS limitMaterial
+       ,count(case	when (to_date(expiration_limit)-to_date(sysdate)) <![CDATA[<]]>0
+       AND	m.material_item = '부재료' AND s.remain_stock_count > 0 
+       AND s.disposal_operation = 'k1' then 1 end) AS limitsubMaterial
+from store_in s join material m
+   on s.material_number = m.material_number
+where store_number=#{storeNumber}	
+        AND sysdate - s.expiration_limit<![CDATA[<]]>7
+        AND  sysdate - s.expiration_limit<![CDATA[>]]>0
+		
+	</select>
+	
+		<select id="listCount3" parameterType="ShopMainVO">
+select count(case when oder_app = 'L1' And  cancel_operation = 'J1' AND auto_order_operation = 'i1' then 1 end) AS oneMaterial
+	   ,count(case when oder_app = 'L2' And  cancel_operation = 'J1' AND auto_order_operation = 'i1' then 1 end) AS twoMaterial
+from store_order
+where store_number=#{storeNumber}	
+		
+	</select>
+
+	<select id="shopSellG" parameterType="ShopMainVO">
+		with b as (
+		SELECT TO_CHAR(TRUNC(to_DATE(#{productDate},'yyyy-MM-dd'), 'MM') + LEVEL
+		- 1,'yy-MM-dd')
+		AS dt
+		FROM dual
+		CONNECT BY LEVEL  <![CDATA[<=]]>
+		LAST_DAY(to_DATE(#{productDate},'yyyy-MM-dd'))- TRUNC(to_DATE(#{productDate},'yyyy-MM-dd'), 'MM') + 1
+		)
+		, a
+		as (
+		SELECT TO_CHAR(product_date, 'yy-MM-dd') AS dt
+		,sum(profits) profits
+		FROM
+		store_sales_statistics
+		WHERE product_date BETWEEN
+		TRUNC(to_DATE(#{productDate},'yyyy-MM-dd'), 'MM') AND
+		LAST_DAY(to_DATE(#{productDate},'yyyy-MM-dd'))
+		AND
+		store_NUMBEr = #{storeNumber}
+		 GROUP BY TO_CHAR(product_date, 'yy-MM-dd')
+		)
+		SELECT b.dt
+		, a.profits
+		FROM a full outer
+		join b
+		on a.dt = b.dt
+		ORDER BY b.dt
+	</select>
+
+	<select id="shopOrderG" parameterType="ShopMainVO">
+		with b as (
+		SELECT TO_CHAR(TRUNC(to_DATE(#{productDate},'yyyy-MM-dd'), 'MM') + LEVEL
+		- 1,'yy-MM-dd')
+		AS dt
+		FROM dual
+		CONNECT BY LEVEL  <![CDATA[<=]]>
+		LAST_DAY(to_DATE(#{productDate},'yyyy-MM-dd'))- TRUNC(to_DATE(#{productDate},'yyyy-MM-dd'), 'MM') + 1
+		)
+		, a
+		as (
+		SELECT TO_CHAR(product_date, 'yy-MM-dd') AS dt
+		,sum(count) count
+		FROM
+		store_product_sale
+		WHERE product_date BETWEEN TRUNC(to_DATE(#{productDate},'yyyy-MM-dd'), 'MM') AND
+		LAST_DAY(to_DATE(#{productDate},'yyyy-MM-dd'))
+		AND store_Number = #{storeNumber}
+		 GROUP BY TO_CHAR(product_date, 'yy-MM-dd')
+		)
+		SELECT b.dt
+		, a.count
+		FROM a full outer join b
+		on a.dt = b.dt
+		ORDER BY b.dt
+	</select>
+
+	<select id="limitList" parameterType="ShopMainVO">
+ select so.order_Day
+               ,m.material_name
+               ,od.count
+               ,si.remain_stock_count
+               ,si.expiration_limit
+               ,si.order_details_number
+               ,si.material_Number
+        from store_in si join order_details od
+               on si.order_details_number = od.order_details_number
+               join store_order so
+               on so.order_number = od.order_number
+               join material m
+               on m.material_number = si.material_number
+        where si.store_number = #{storeNumber}
+        AND si.remain_stock_count > 0
+        AND si.disposal_operation = 'k1'
+        AND sysdate - si.expiration_limit <![CDATA[<]]>7
+        AND  sysdate - si.expiration_limit <![CDATA[>]]>0
+        order by order_day
+	</select>
+
+	<select id="shopcountMaterial" resultType ="int">
+		select count(*) from material
+	</select>
+	
+		<select id="noticeList" resultType ="ShopMainVO">
+        select title
+               ,writer_date
+               ,CEIL(sysdate-writer_date) AS datem
+        from (select *
+              from notice
+              order by Notice_number DESC)
+        where rownum = 1
+	</select>
+</mapper>

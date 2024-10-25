@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/layout}" layout:fragment="Content">
+
+<head>
+<meta charset="UTF-8">
+<title>공지사항</title>
+<style>
+.namev{
+color:grey;
+}
+
+.notice .active{
+ color:block
+ 
+}
+</style>
+</head>
+
+<body>
+	<main id="main" class="main">
+		<div class="pagetitle notice">
+			<h1>공지사항</h1>
+
+			<nav class="navbar navbar-expand-lg bg-body-tertiary">
+				<div class="container-fluid namev">
+<!-- [[${paging}]] -->
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+							<li class="nav-item"><a class="nav-link "  th:classappend ="${paging.division}==null? 'active'" 
+								aria-current="page" href="noticeListOffice" ><span   style="font-size: 19px; font-family: Do Hyeon">전체</span></a></li>
+							<li class="nav-item"><a class="nav-link " th:classappend ="${paging.division}=='업데이트'? 'active'" 
+								aria-current="page" href="noticeListOfficeUpdate"><span  style="font-size: 19px; font-family: Do Hyeon">업데이트</span></a></li>
+							<li class="nav-item"><a class="nav-link " th:classappend ="${paging.division}=='서비스'? 'active'" 
+								aria-current="page" href="noticeListOfficeService"><span  style=" font-size: 19px; font-family: Do Hyeon">서비스</span></a></li>
+							<li class="nav-item"><a class="nav-link " th:classappend ="${paging.division}=='이벤트'? 'active'" 
+								aria-current="page" href="noticeListOfficeEvent"><span  style="font-size: 19px; font-family: Do Hyeon">이벤트</span></a></li>
+							<li class="nav-item"><a class="nav-link " th:classappend ="${paging.division}=='작업'? 'active'" 
+								aria-current="page" href="noticeListOfficeWork"><span  style="font-size: 19px; font-family: Do Hyeon">작업</span></a></li>
+							<li class="nav-item"><a class="nav-link " th:classappend ="${paging.division}=='공고'? 'active'" 
+								aria-current="page" href="noticeListOfficeAnnouncement"><span style="font-size: 19px; font-family: Do Hyeon">공고</span></a></li>
+						</ul>
+
+
+						<form class="d-flex" role="search" id="searchForm">
+							<input class="form-control me-3" type="search"
+								placeholder="Search" aria-label="Search">
+							<button class="btn btn-outline-success" id="keywordBtn">Search</button>
+						</form>
+						<form style="margin: 5px">
+							<button type="button" id="btnInsert" class="btn btn-primary" sec:authorize="hasAnyRole('ROLE_2')">작성하기</button>
+							<button type="button" id="btnInsert" class="btn btn-primary" sec:authorize="hasAnyRole('ROLE_1')">작성하기</button>
+						</form>
+
+
+					</div>
+				</div>
+			</nav>
+
+		</div>
+		<!-- End Page Title -->
+		<section class="section">
+			<div class="row">
+				<div class="col-lg-12">
+
+
+
+					<div class="card">
+						<div class="card-body">
+							<form method="POST" th:action="@{/noticeListShop}">
+								<table class="table">
+									<thead>
+										<tr>
+											<th><b>일련번호</b></th>
+											<th>구분</th>
+											<th>공지사항</th>
+											<th>공고일</th>
+										</tr>
+									</thead>
+									<tbody>
+										<th:block th:each="lista:${viewAll}">
+											<tr>
+												<td th:text="${lista.noticeNumber}" />
+												<td th:text="${lista.division}" />
+												<td th:text="${lista.title}" />
+												<td>
+													[[${#dates.format(lista.writerDate,'yyyy-MM-dd')}]]</td>
+											</tr>
+											</th:block>
+									</tbody>
+								</table>
+							</form>
+							<!-- End Table with stripped rows -->
+						</div>
+					</div>
+
+<div style="display: block; text-align: center;">
+											<nav aria-label="Page navigation">
+						    <ul class="pagination justify-content-center">
+						        <!-- Previous button -->
+						        <li class="page-item" th:classappend="${paging.startPage == 1} ? 'disabled'">
+						            <a class="page-link" th:href="@{/noticeListOffice(nowPage=${paging.startPage - 1}, cntPerPage=${paging.cntPerPage})}" aria-disabled="true">&lt;</a>
+						        </li>
+						        <!-- Page numbers -->
+						        <li class="page-item" th:each="p : ${#numbers.sequence(paging.startPage, paging.endPage)}" 
+						            th:classappend="${p == paging.nowPage} ? 'active'">
+						            <span th:if="${p == paging.nowPage}">
+						                <a class="page-link" th:text="${p}"></a>
+						            </span>
+						            <span th:if="${p != paging.nowPage}">
+						                <a class="page-link" th:href="@{/noticeListOffice(nowPage=${p}, cntPerPage=${paging.cntPerPage})}" th:text="${p}"></a>
+						            </span>
+						        </li>
+						        <!-- Next button -->
+						        <li class="page-item" th:classappend="${paging.endPage == paging.lastPage} ? 'disabled'">
+						            <a class="page-link" th:href="@{/noticeListOffice(nowPage=${paging.endPage + 1}, cntPerPage=${paging.cntPerPage})}">&gt;</a>
+						        </li>
+						    </ul>
+						</nav>
+					    
+					</div>
+
+
+
+				</div>
+			</div>
+		</section>
+	</main>
+	<script>
+		$("#btnInsert").on("click", function(event) {
+			//$("button").on("click", function(event){
+			let url = 'noticeInsertOffice';
+			location.href = url;
+		});
+
+		$('tbody > tr').on("click", function(event) {
+			let num = $(event.currentTarget).children().eq(0).text();
+			let url = 'noticeListInfoOffice?noticeNumber=' + num;
+			location.href = url;
+		});
+
+		
+		
+		
+	</script>
+</body>
+</html>

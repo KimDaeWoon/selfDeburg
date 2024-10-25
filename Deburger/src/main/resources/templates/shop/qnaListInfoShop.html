@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/shop_layout}" layout:fragment="Content">
+
+<head>
+<meta charset="UTF-8">
+<title>QnA 상세</title>
+</head>
+
+<body>
+
+	<main id="main" class="main">
+		<div class="pagetitle">
+	    <form style="margin-Left: 69% ; display: inline-block" id="btn1">
+			<button type="button" id="btnInsert" class="btn btn-primary">수정하기</button>
+			<button type="button" id="btnDelete" class="btn btn-primary">삭제하기</button>
+	    </form>	
+		    <p id="writer">[[${qna.qnaDetail.writer}]]</p>
+			<h2><b>[[ ${qna.qnaDetail.title} ]]</b></h2>
+            <p><a>[[${#dates.format(qna.qnaDetail.writerDay,'yyyy-MM-dd')}]]</a></p>
+			<hr class="col-md-10">
+			<br>
+			<p>[(${qna.qnaDetail.content})]</p>
+			<br>
+			<hr class="col-md-10">
+		    <div class="col-md-10">
+			     <div class="card" >
+					<div class="card-body" style="height: 150px">
+					<p th:if="${qna.comments} != null" th:text="${qna.comments.comContent}"><p>
+					</div>
+			     </div>
+			</div>			
+			<p><a href="qnaListShop">목록으로</a>
+       			
+		</div>
+     </main>
+     	<script>
+     	toggleBtn() ;
+     	
+     	     function toggleBtn() {
+     		  // 토글 할 버튼 선택 (btn1)
+     		  const btn1 = document.getElementById('btn1');
+     		  // btn1 숨기기 (display: none)
+     		  if(writer.innerText !== '접수') {
+     		    btn1.style.display = 'none';
+     		  }
+     		  // btn1 보이기 (display: block)
+     		  else {
+     		    btn1.style.display = 'block';
+     		  }
+     		  
+     		}
+     	
+           $("#btnInsert").on("click", function(event) {
+			const urlParams = new URL(location.href).searchParams;
+			const qnaNumber = urlParams.get('qnaNumber');
+			let url = 'qnaShopUpdate?qnaNumber='+qnaNumber ;
+			location.href = url;
+		});    
+			
+   		$("#btnDelete").on("click", function(event) {
+   			Swal.fire({
+                title: '문의글을 삭제하시겠습니까?',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '승인',
+                cancelButtonText: '취소'
+                })
+                .then((result)=>{
+   			
+   			
+			const urlParams = new URL(location.href).searchParams;
+			const qnaNumber = urlParams.get('qnaNumber');
+			let url = 'qnaShopDelete?qnaNumber='+qnaNumber;
+			location.href = url;
+			//alert("정상적으로 삭제되었습니다!")
+                })
+		});
+   		
+   		
+		</script>
+</body>
+</html>

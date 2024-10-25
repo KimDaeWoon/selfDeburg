@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/layout}" layout:fragment="Content">
+<head>
+<meta charset="UTF-8" />
+<title>공지사항 작성</title>
+</head>
+<body>
+	<main id="main" class="main">
+		<div class="pagetitle">
+			<!-- 작성 칸 영역 -->
+
+			<form class="row g-3" name="noticeInsertOffice"
+				th:action="@{noticeInsertOffice}" method="post">
+				<div style="margin-Left: 8px">
+					<h1 style="display: inline-block">공지사항</h1>
+					<button type="button" id="btnInsert" class="btn btn-primary"
+						style="margin-left: 67%">등록하기</button>
+				</div>
+
+				<div class="col-md-10">
+					<div class="card">
+						<div class="card-body">
+							<!--카테고리 작성 칸-->
+							<div class="col-sm-12" style="margin-top: 10px">
+								<select class="form-select" id="selectdivision" name="division"
+									aria-label="Default select example">
+									<option selected>카테고리를 선택해주세요.</option>
+									<option value="업데이트">업데이트</option>
+									<option value="서비스">서비스</option>
+									<option value="이벤트">이벤트</option>
+									<option value="작업">작업</option>
+									<option value="공고">공고</option>
+								</select>
+							</div>
+
+							<!--제목 작성 칸-->
+							<div class="col-md-12" style="margin-top: 10px">
+								<input type="text" class="form-control" name="title"
+									placeholder="공지사항 제목을 작성해주세요." />
+							</div>
+
+							<!--내용 작성 칸-->
+							<div class="col-md-12"
+								style="height: 450px; margin-top: 10px; margin-bottom: 10px">
+								<div id="contentDiv" class="editer"></div>
+							</div>
+
+							<br />
+						</div>
+					</div>
+				</div>
+			</form>
+			<!-- 작성 칸 영역 끝 -->
+		</div>
+
+	</main>
+	<!-- End #main -->
+	<script>
+	let quill;
+	quilljsediterInit();
+	
+    function quilljsediterInit(){
+
+
+        quill =   new Quill("#contentDiv", {
+            modules: {
+              toolbar: [
+                [{
+                  font: []
+                }, {
+                  size: []
+                }],
+                ["bold", "italic", "underline", "strike"],
+                [{
+                    color: []
+                  },
+                  {
+                    background: []
+                  }
+                ],
+                [{
+                    script: "super"
+                  },
+                  {
+                    script: "sub"
+                  }
+                ],
+                [{
+                    list: "ordered"
+                  },
+                  {
+                    list: "bullet"
+                  },
+                  {
+                    indent: "-1"
+                  },
+                  {
+                    indent: "+1"
+                  }
+                ],
+                ["direction", {
+                  align: []
+                }],
+                ["link", "image", "video"],
+                ["clean"]
+              ]
+            },
+            theme: "snow"
+          });
+    }
+		$("#btnInsert").on("click", function(event) {
+			
+			
+			//텍스트 에어리어 안에 넣어서
+			
+			
+
+
+			
+
+			//console.log(selectkey);
+
+			
+			
+			if($('#selectdivision').val() != "카테고리를 선택해주세요."){
+				let tArea = document.createElement("textarea");
+				tArea.value =  quill.root.innerHTML;
+				tArea.name = "content";
+
+				//debugger
+				//어팬드 한다음 서브밋
+				$("form[name='noticeInsertOffice']").append(tArea);
+				
+				noticeInsertOffice.submit();
+				Swal.fire({
+	                title: '게시글이 등록되었습니다.',
+	                text: "",
+	                icon: 'success',
+	                //showCancelButton: true,
+	                confirmButtonColor: '#3085d6',
+	                cancelButtonColor: '#d33',
+	                confirmButtonText: '승인',
+	                //cancelButtonText: '취소'
+	                })
+			}else{
+				Swal.fire({
+	                title: '카테고리를 선택해주세요.',
+	                text: "",
+	                icon: 'warning',
+	                //showCancelButton: true,
+	                confirmButtonColor: '#3085d6',
+	                cancelButtonColor: '#d33',
+	                confirmButtonText: '승인',
+	                //cancelButtonText: '취소'
+	                })
+			}
+			
+			
+
+               
+			//alert("게시글이 등록되었습니다.");
+		});
+	</script>
+</body>
+</html>

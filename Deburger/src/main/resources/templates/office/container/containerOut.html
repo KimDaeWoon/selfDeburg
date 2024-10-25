@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{common/layouts/layout}"
+	  layout:fragment="Content">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+    <meta name="contextPath" th:value="${contextPath}">
+</head>
+<body>
+		
+
+  <main id="main" class="main">
+    <div class="pagetitle">
+      <h1>출고 처리 목록</h1>      
+    </div><!-- End Page Title -->
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body" style="min-height: 500px;">
+              <h5 class="card-title" style="float: left;">[[${persons.logisticsName}]]</h5>
+              	<table class="table" th:if="${lcnts}">
+              		<thead >
+              			<tr>
+              				<th>발주 번호</th>
+              				<th>가맹점 이름</th>
+              				<th>진행 상태</th>
+              				
+              				<th>요청 수량</th>
+              				<th>비고</th>
+              			</tr>
+              		</thead>
+              		<th:block th:each="lists:${out}" >
+	              		<tbody >
+	              			<tr>
+	              				<td th:text="${lists.orderNumber}"></td>
+	              				<td th:text="${lists.storeName}"></td>
+	              				<td th:text="${lists.oderApp } == 'L3' ? '출고 완료' : '출고 전'"></td>
+	              
+	              				<td th:text="${lists.count}"></td>
+	              				<td ></td>
+	              			</tr>
+	              		</tbody>             		
+              		</th:block>
+              	</table>
+              	<table class="table" th:unless="${lcnts}">
+              		<thead >
+              			<tr>
+              				<th>발주 번호</th>
+              				<th>가맹점 이름</th>
+              				<th>진행 상태</th>
+              				<th>요청 수량</th>
+              				<th>비고</th>
+              			</tr>
+              		</thead>
+              		<th:block>
+	              		<tbody >
+	              			<tr>
+								<td colspan='5' style="text-align: center;">현재 출고 요청 목록이 없습니다.</td>	              				
+	              			</tr>
+	              		</tbody>             		
+              		</th:block>
+              	</table>
+            </div>
+          </div>
+        </div>       
+      </div>
+    </section>
+  </main>
+  
+</body>
+<script>
+	const clc = $('meta[name="contextPath"]').attr('value');
+  	$('tbody > tr').on('click', function(event){
+  		let tr = event.currentTarget;
+  		let did = $(tr).children().eq(0).text();
+  		let url = clc + '/containerOutInfo?orderNumber='+did;
+  		location.href = url;
+  	});
+</script>
+</html>

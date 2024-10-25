@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/shop_layout}"
+	layout:fragment="Content">
+<head>
+<meta charset="UTF-8" />
+<title>입고 상세 관리</title>
+</head>
+
+<body>
+	<main id="main" class="main">
+		<div class="pagetitle">
+			<h1>입고 상세 관리</h1>
+		</div>
+		<!-- End Page Title -->
+		<section class="section">
+			<div class="row">
+				<div class="col-lg-12">
+
+					<div class="card">
+						<div class="card-body">
+							<!-- Table with stripped rows -->
+							<table class="table">
+								<thead>
+									<div style="text-align: left; margin-left: 90%; margin-top: 10px;">
+										<button type="button" class="btn btn-primary"
+											onclick="makeData()">저장</button>
+										<button type="button" class="btn btn-primary" onclick="location.href='storeInList'">취소</button>
+									</div>
+								</thead>
+								<tbody>
+									<tr>
+										<th>주문 번호</th>
+										<th>주문 일자</th>
+									<tr>
+										<th th:text="${storeIninfoList[0].orderNumber}"
+											id="orderNumber"></th>
+										<th>[[${#dates.format(storeIninfoList[0].orderDay,'yyyy/MM/dd')}]]</th>
+									</tr>
+								</tbody>
+							</table>
+							<!-- <table class="table datatable"> -->
+							<table class="table ">
+								<thead>
+									<tr>
+										<th>상세 주문 번호</th>
+										<th>재료 이름</th>
+										<th>수량</th>
+										<th>입고 수량</th>
+										<th>제조 일자</th>
+										<th>유통 기한</th>
+										<th>소비 기한</th>
+										<th>이미지</th>
+										<th>입고 여부</th>
+										<th>비고</th>
+									</tr>
+								</thead>
+								<tbody id="GetList">
+									<th:block th:each="list:${storeIninfoList}">
+										<tr>
+											<td th:text="${list.materialNumber}" style="display: none;" />
+											<td th:text="${list.orderDetailsNumber}" />
+											<td th:text="${list.materialName}" />
+											<td th:text="${list.count}" id="count" />
+											<td class="col-sm-1"><input type="number" min="0"
+												th:max="${list.count}" th:value="${list.count}"
+												style="border: none;"></td>
+											<td>[[${#dates.format(list.manufactureDay,'yyyy/MM/dd')}]]</td>
+											<td>[[${#dates.format(list.expirationLimit,'yyyy/MM/dd')}]]</td>
+											<td>[[${#dates.format(list.consumptionLimit,'yyyy/MM/dd')}]]</td>
+											<td class="col-sm-2"><input class="form-control"
+												type="file" id="contractImageFile" name="contractImageFile" />
+
+											</td>
+											<td class="col-sm-2">입고</td>
+											<td><input type="text" style="border: none;"></td>
+
+
+										</tr>
+									</th:block>
+								</tbody>
+							</table>
+
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</section>
+	</main>
+	<script th:inline="javascript">
+		function makeData() {
+			
+			var formData = new FormData();
+			
+			
+			
+
+			$('#GetList > tr').each(
+					function(i, list) {
+
+						let tr = $(list).children()
+
+						formData.append(`StoreInList[${i}].storeNumber`,[[${#authentication.name}]]);
+						
+						// 재고 테이블
+						formData.append(`StoreInList[${i}].stockCount`,tr.eq(4).find('input').val());
+						formData.append(`StoreInList[${i}].safetyStock`,tr.eq(4).find('input').val());
+						
+						// 입고 테이븦
+						var fileInput = list.querySelector("#contractImageFile");
+						
+						if(fileInput.files.length > 0){
+							formData.append(`StoreInList[${i}].contractImageFile`, fileInput.files[0]);
+						}
+						
+						formData.append(`StoreInList[${i}].note`, tr.eq(10).find('input').val());
+						formData.append(`StoreInList[${i}].manufactureDay`, tr.eq(5).html());
+						formData.append(`StoreInList[${i}].remainStockCount`,tr.eq(4).find('input').val());
+						formData.append(`StoreInList[${i}].consumptionLimit`,tr.eq(7).html());
+						formData.append(`StoreInList[${i}].expirationLimit`, tr.eq(6).html());
+						formData.append(`StoreInList[${i}].orderDetailsNumber`,tr.eq(1).html());
+
+						if (tr.eq(9).html() == '입고') {
+							formData.append(`StoreInList[${i}].inOperation`,
+									'F2');
+						} else if (tr.eq(9).html() == '부분 입고') {
+							formData.append(`StoreInList[${i}].inOperation`,
+									'F1');
+						} else if (tr.eq(9).html() == '폐기') {
+							formData.append(`StoreInList[${i}].inOperation`,
+									'F0');
+						}
+
+						formData.append(`StoreInList[${i}].count`, tr.find(
+								'input').val());
+						formData.append(`StoreInList[${i}].materialNumber`, tr
+								.eq(0).html());
+
+					})
+			
+					
+			Swal.fire({
+                title: '입고 완료 하시겠습니까?',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '승인',
+                cancelButtonText: '취소'
+                })
+                .then((result)=>{
+                	if(result.isConfirmed){
+                		Swal.fire({
+                            title: '입고가 완료되었습니다.',
+                            icon: 'success',
+                          })
+                          $.ajax({
+              				type : "POST",
+              				//enctype : 'multipart/form-data', ajax에는 없음 대신 사용하는것이 processData,contentType 
+              				url : 'insertStoreInList',
+              				data : formData,
+              				processData : false,
+              				contentType : false,
+              				cache : false,
+              				success : function(result) {
+              				}
+              			}) .then((end) => {
+              				location.href="storeInList"
+              			}) ; 
+                	}
+                })		
+					
+			
+		}
+
+		$("input").on(
+				"change",
+				function(event) {
+
+					let incount = $(event.target).closest('tr').find('input')
+							.val()
+					let ordercount = $(event.target).closest('tr').children()
+							.eq(3).html()
+
+					if ((ordercount - incount) == 0) {
+						$(event.target).closest('tr').children().eq(9).html(
+								"입고")
+					} else if (incount == 0) {
+						$(event.target).closest('tr').children().eq(9).html(
+								"입고 거부")
+					} else if (ordercount - incount > 0) {
+						$(event.target).closest('tr').children().eq(9).html(
+								"부분 입고")
+					}
+				});
+	</script>
+</body>
+
+</html>

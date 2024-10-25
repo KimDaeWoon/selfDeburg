@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/layout}" layout:fragment="Content">
+<head>
+<meta charset="UTF-8" />
+<title>Insert title here</title>
+
+
+</head>
+
+<body>
+	<main id="main" class="main">
+		<div class="pagetitle">
+			<h1>QSC 항목 관리</h1>
+
+		</div>
+
+		<!-- End Page Title -->
+		<section class="section">
+			<div class="row">
+				<div class="col-lg-12">
+					<div>
+						<p>*가맹점에서 사용하는 체크리스트의 상세 항목을 작성할 수 있습니다.</p>
+						<button type="button" class="mb-3 btn btn-primary col-md-4"
+							id="insertBtn">저장하기</button>
+					</div>
+					
+					<div class="card">
+						<div class="qsc-card-body">
+							<!-- Default Tabs -->
+							<ul class="nav nav-tabs d-flex" id="myTabjustified"
+								role="tablist">
+								<li class="nav-item flex-fill" role="presentation">
+									<button class="nav-link w-100 active" id="home-tab"
+										data-bs-toggle="tab" data-bs-target="#home-justified"
+										type="button" role="tab" aria-controls="home"
+										aria-selected="true" onclick="grid1.refreshLayout()">
+										Quality(품질)</button>
+								</li>
+								<li class="nav-item flex-fill" role="presentation">
+									<button class="nav-link w-100" id="profile-tab"
+										data-bs-toggle="tab" data-bs-target="#profile-justified"
+										type="button" role="tab" aria-controls="profile"
+										aria-selected="false" onclick="grid2.refreshLayout()">
+										Service(서비스)</button>
+								</li>
+								<li class="nav-item flex-fill" role="presentation">
+									<button class="nav-link w-100" id="contact-tab"
+										data-bs-toggle="tab" data-bs-target="#contact-justified"
+										type="button" role="tab" aria-controls="contact"
+										aria-selected="false" onclick="grid3.refreshLayout()">
+										Cleanliness(청결)</button>
+								</li>
+							</ul>
+
+							<div class="tab-content pt-2" id="myTabjustifiedContent">
+								<div class="tab-pane fade show active" id="home-justified"
+									role="tabpanel" aria-labelledby="home-tab">
+
+									<!-- 추가 삭제 버튼(품질) -->
+									<div class="toastBtn">
+										<div class="row d-flex justify-content-around">
+											<button type="button" class="btn btn-info col-md-3"
+												id="appendBtn">추가</button>
+											<button type="button" class="btn btn-info col-md-3"
+												id="deleteBtn">삭제</button>
+										</div>
+									</div>
+									<!-- 추가 삭제 버튼(품질) 끝 -->
+									<!-- grid1 -->
+									<div id="grid1"></div>
+								</div>
+
+
+								<div class="tab-pane fade" id="profile-justified"
+									role="tabpanel" aria-labelledby="profile-tab">
+									<!-- 추가 삭제 버튼(서비스) -->
+									<div class="toastBtn">
+										<div class="row d-flex justify-content-around">
+
+											<button type="button" class="btn btn-info col-md-3"
+												id="appendBtn2">추가</button>
+
+											<button type="button" class="btn btn-info col-md-3"
+												id="deleteBtn2">삭제</button>
+
+										</div>
+									</div>
+									<!-- 추가 삭제 버튼(서비스) -->
+									<!-- grid2 -->
+									<div id="grid2"></div>
+								</div>
+								
+
+								<div class="tab-pane fade" id="contact-justified" role="tabpanel" aria-labelledby="contact-tab">
+									<!-- 추가 삭제 버튼(청결) -->
+									<div class="toastBtn">
+										<div class="row d-flex justify-content-around">
+											<button type="button" class="btn btn-info col-md-3"
+												id="appendBtn3">추가</button>
+											<button type="button" class="btn btn-info col-md-3"
+												id="deleteBtn3">삭제</button>
+										</div>
+									</div>
+									<!-- 추가 삭제 버튼(청결) 끝 -->
+
+									<br /> <br />
+									<!-- grid3 -->
+									<div id="grid3"></div>
+								</div>
+								<!-- End Bordered Tabs Justified -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<script th:inline="javascript">
+      let grid1;
+      let grid2;
+      let grid3;
+
+      var detaList = [[${QscList}]];
+      let QualityData = [];
+      let ServiceData = [];
+      let CleanlinessData = [];
+
+
+      detaList.forEach(function(ele){
+        if(ele.category.substring(0, 1) == 'Q'){
+          QualityData.push(ele);
+        }else if(ele.category.substring(0, 1) == 'S'){
+          ServiceData.push(ele)
+        }if(ele.category.substring(0, 1) == 'C'){
+          CleanlinessData.push(ele)
+        }
+      });
+
+
+      let options1 = [
+        { text: '패티 관리', value: 'Q1' },
+        { text: '재조 매뉴얼 준수', value: 'Q2' },
+        { text: '주류/음료', value: 'Q3' },
+        { text: '식자제 관리', value: 'Q4' },
+      ];
+
+      let options2 = [
+        { text: '단정', value: 'S1' },
+        { text: '준비', value: 'S2' },
+        { text: '영업/대기', value: 'S3' },
+        { text: '홀 서비스', value: 'S4' },
+        { text: '기타', value: 'S5' },
+      ];
+
+      let options3 = [
+        { text: '매장 내부', value: 'C1' },
+        { text: '매장 외부', value: 'C2' },
+        { text: '화장실', value: 'C3' },
+        { text: '주방', value: 'C4' },
+        { text: '홀 기기', value: 'C5' },
+        { text: '위생', value: 'C6' },
+      ];
+
+      $(document).ready(async () => {
+        // 2. HTML이 수행된 뒤 함수를 호출한다.
+        grid1 = await gridLoad(options1, 'grid1', QualityData);
+        grid2 = await gridLoad(options2, 'grid2', ServiceData);
+        grid3 = await gridLoad(options3, 'grid3', CleanlinessData);
+      });
+
+      /**
+       *
+       * @return void
+       */
+      const gridLoad = (optionsList, gridname, datas) => {
+        // 3. 그리드 생성
+        const Grid = tui.Grid;
+
+        /**
+         * [선택] 그리드 테마 적용하기 (clean, stripe, default)
+         *
+         * @reference https://nhn.github.io/tui.grid/latest/tutorial-example07-themes
+         * @reference https://seokbong.tistory.com/14
+         */
+        Grid.applyTheme('clean');
+
+        /**
+         * [선택] Grid Confirm 메시지
+         */
+        Grid.setLanguage('en'); // set Korean
+        const grid = new Grid({
+          // ================================== 공통 옵션 적용 ==============================
+          el: document.getElementById(gridname), // [필수] Container element
+          data: datas, // [선택] 그리드 데이터 조회
+
+          /**
+           * [선택] 순번 기능
+           * @reference : http://nhn.github.io/tui.grid/latest/tutorial-example11-row-headers
+           */
+          rowHeaders: ['checkbox'],
+
+          pageOptions: {
+            useClient: true,
+            perPage: 10,
+          },
+          draggable: true,
+
+          // ================================== 컬럼 옵션 적용 ==============================
+          columns: [
+            // [Column-5] 사용자 취미
+            {
+              header: '항목', // [필수] 컬럼 이름
+              name: 'list', // [필수] 컬럼 매핑 이름 값
+              align: 'center', // [선택] 텍스트 정렬 옵션
+              sortable: true, // [선택] 컬럼의 정렬 여부
+              resizable: true, // [선택] 컬럼의 리사이즈 여부 옵션
+              formatter: 'listItemText', // [선택] 값을 기반으로 select box 옵션
+              rowSpan : true,
+              validation: {
+                  regExp: /^(.){1,5}$/,
+                },
+
+              // [Option] select 옵션
+              editor: {
+                type: 'select',
+                options: {
+                  listItems: optionsList,
+                },
+              },
+            },
+            // [Column-2] 상세 항목
+            {
+              header: '상세 항목', // [필수] 컬럼 이름
+              name: 'content', // [필수] 컬럼 매핑 이름 값
+              sortable: true, // [선택] 컬럼의 정렬 여부
+              resizable: true, // [선택] 컬럼의 리사이즈 여부 옵션
+              editor: 'text', // [선택] 수정 옵션
+              align: 'left', // [선택] 텍스트 정렬 옵션
+              width: 600,
+              validation: {
+                regExp: /^(.){1,100}$/,
+              },
+              onAfterChange(ev) {
+                if (ev.value.length > 100) {
+                  alert('글자수가 초과되었습니다.');
+                  ev.value = ev.value.substring(0, 100);
+                  grid.focus(ev.rowKey, 'content', true);
+                  grid.refreshLayout();
+                }
+                console.log(ev);
+              },
+            },
+
+            // [Column-4] 배점
+            {
+              header: '배점', // [필수] 컬럼 이름
+              name: 'score', // [필수] 컬럼 매핑 이름 값
+              sortable: true, // [선택] 컬럼의 정렬 여부
+              resizable: true, // [선택] 컬럼의 리사이즈 여부 옵션
+              align: 'center', // [선택] 텍스트 정렬 옵션
+            },
+          ],
+        });
+
+        //  그리드 추가
+
+        return grid;
+      };
+
+      const appendBtn = document.getElementById('appendBtn');
+      const deleteBtn = document.getElementById('deleteBtn');
+      const appendBtn2 = document.getElementById('appendBtn2');
+      const deleteBtn2 = document.getElementById('deleteBtn2');
+      const appendBtn3 = document.getElementById('appendBtn3');
+      const deleteBtn3 = document.getElementById('deleteBtn3');
+      const insertBtn = document.getElementById('insertBtn');
+      const appendedData = {list: '',content:'',score: 3};
+
+      appendBtn.addEventListener('click', () => {
+        grid1.appendRow(appendedData);
+      });
+      appendBtn2.addEventListener('click', () => {
+        grid2.appendRow(appendedData);
+      });
+      appendBtn3.addEventListener('click', () => {
+        grid3.appendRow(appendedData);
+      });
+
+      deleteBtn.addEventListener('click', () => {
+        grid1.removeCheckedRows();
+      });
+      deleteBtn2.addEventListener('click', () => {
+        grid2.removeCheckedRows();
+      });
+      deleteBtn3.addEventListener('click', () => {
+        grid3.removeCheckedRows();
+      });
+
+      insertBtn.addEventListener('click', () => {
+       if(grid1.validate().length == 0 && grid2.validate().length == 0 && grid3.validate().length == 0){
+        let qscDataList = [...grid1.getData(), ...grid2.getData(), ...grid3.getData()]
+
+        
+        Swal.fire({
+            title: `현재 항목들이 최신버전으로 등록됩니다.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '승인',
+            cancelButtonText: '취소'
+            })
+            .then((result) => {
+              if (result.isConfirmed) {
+            	  $.ajax({
+                      url: "/deburger/qscInsertOffice",
+                      method: "post",
+                      contentType:"application/json",
+                      data  : JSON.stringify(qscDataList),
+                   })
+                   .then(result =>{   	 
+                	   Swal.fire({
+                           title: `${result}개 항목이 최신버전으로 등록되었습니다.`,
+                           icon: 'success',
+                         });                 	 
+                   })  
+              }})
+       }else{
+    	   Swal.fire(
+                   {
+                   title: '붉은색으로 표시된 항목의 \n 글자수가 잘못되었습니다. \n확인후 다시저장해주세요',
+                   icon: 'error',
+                 })
+       }
+
+      });
+    </script>
+</body>
+</html>

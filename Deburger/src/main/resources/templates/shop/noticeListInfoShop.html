@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/shop_layout}" layout:fragment="Content">
+
+<head>
+<meta charset="UTF-8">
+<title>공지사항 상세</title>
+</head>
+
+<body>
+	<main id="main" class="main">
+		<div class="pagetitle">
+	    <form style="margin: 0px ; width: 75%; display: inline-block ; value: Left">
+		<th:block th:if="${notice.division =='업데이트'}"> <p><a href="noticeListShopUpdate">[[ ${notice.division} ]]</a></p></th:block>
+		<th:block th:if="${notice.division =='서비스'}"> <p><a href="noticeListShopService">[[ ${notice.division} ]]</a></p></th:block>
+		<th:block th:if="${notice.division =='이벤트'}"> <p><a href="noticeListShopEvent">[[ ${notice.division} ]]</a></p></th:block>
+		<th:block th:if="${notice.division =='작업'}"> <p><a href="noticeListShopWork">[[ ${notice.division} ]]</a></p></th:block>
+		<th:block th:if="${notice.division =='공고'}"> <p><a href="noticeListShopAnnouncement">[[ ${notice.division} ]]</a></p></th:block>
+		</form>
+			<h2><b>[[ ${notice.title} ]]</b></h2>
+            <p><a>[[${#dates.format(notice.writerDate,'yyyy-MM-dd')}]]</a></p>
+			<hr class="col-md-11">
+			<div class="col-md-11">
+				<div class="card" style="padding: 15px">
+			
+			<p>[(${notice.content})]<p>
+			</p>
+			</div>
+			</div>
+			<hr class="col-md-11">
+			<p><a href="noticeListShop">목록으로</a>
+       			
+		</div>
+     </main>
+     	<script>
+     	$("#btnInsert").on("click", function(event) {
+			const urlParams = new URL(location.href).searchParams;
+			const noticeNumber = urlParams.get('noticeNumber');
+			//noticeCorrectOffice?noticeNumber=ANM0000061
+			let url = 'noticeCorrectOffice?noticeNumber='+ noticeNumber ;
+			location.href = url;
+			alert("저장 되었습니다.");
+		});    
+			
+   		$("#btnDelete").on("click", function(event) {
+			const urlParams = new URL(location.href).searchParams;
+			const noticeNumber = urlParams.get('noticeNumber');
+			let url = 'noticeDeleteOffice?noticeNumber='+ noticeNumber;
+			location.href = url;
+			alert("삭제 되었습니다.");
+		}); 
+		</script>
+</body>
+</html>

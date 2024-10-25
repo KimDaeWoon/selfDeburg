@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<th:block xmlns:th="http://www.thymeleaf.org/" th:fragment="HeaderFrag">
+
+
+	<!-- ======= Header ======= -->
+	<header id="header" class="header fixed-top d-flex align-items-center">
+
+		<div class="d-flex align-items-center justify-content-between">
+			<a th:href="@{/shop}" class="logo d-flex align-items-center"> <img
+				src="assets/img/메인로고_디버거.jpg" alt=""> <span
+				class="d-none d-lg-block">DEBURGER</span>
+			</a> <i class="bi bi-list toggle-sidebar-btn"></i>
+		</div>
+		<!-- End Logo -->
+
+
+		<nav class="header-nav ms-auto">
+			<ul class="d-flex align-items-center">
+
+				<li class="nav-item pe-3">
+					<a class="nav-link nav-profile d-flex align-items-center pe-0">
+						<span class="d-none d-md-block ps-2">
+							<i class="fa-solid fa-burger"></i>
+						</span>
+						<span class="d-none d-md-block ps-2">점주님 어서오세요!</span>
+					</a>
+				</li>
+
+				<li class="nav-item pe-5">
+					<form th:action="@{/logout}" method="post"
+						sec:authorize="isAuthenticated()">
+						<a class="dropdown-item d-flex align-items-center"> <i
+							class="fa-solid fa-right-from-bracket"></i>
+							<button type="submit" class="logoutBtn">로그아웃</button>
+						</a>
+					</form>
+				</li>
+
+			</ul>
+		</nav>
+		<!-- End Icons Navigation -->
+
+
+	</header>
+	<!-- End Header -->

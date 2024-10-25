@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{common/layouts/layout}"
+	  layout:fragment="Content">
+<head>
+<meta charset="UTF-8">
+
+<title>Insert title here</title>
+
+<style>
+
+#postnum {
+	margin-top: 31.994px;
+}
+
+</style>
+
+</head>
+<body>
+
+  <main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>업체 수정</h1>
+
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-12">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+
+
+              <form class="row g-3" name="updateForm" th:object="${supplier}" method="post">
+				<input type="hidden" name="_csrf" th:value="${_csrf.token}">
+				<div class="col-md-12">
+                  <label for="cname" class="form-label">상호명</label>
+                  <input type="text" class="form-control" id="cname" name="clientName" th:field="*{clientName}">
+                </div>
+                
+                <div class="col-md-12">
+                  <label for="ceo" class="form-label">대표자명</label>
+                  <input type="text" class="form-control" id="ceo" name="representativeName" th:field="*{representativeName}">
+                </div>
+                
+                
+                <div class="col-md-12">
+                  <label for="busnum" class="form-label">사업자 번호</label>
+                  <input type="text" class="form-control" id="busnum" oninput="hypenBusiness(this)" maxlength="12" name="businessnum" th:field="*{businessnum}">
+                </div>
+                
+                
+                <div class="col-md-12">
+                  <label for="bustype" class="form-label">업태</label>
+                  <input type="text" class="form-control" id="bustype" name="businessType" th:field="*{businessType}">
+                </div>
+                
+                <div class="col-md-12">
+                  <label for="tel" class="form-label">전화번호 (하이픈 - 포함)</label>
+                  <input type="text" class="form-control" id="tel" name="phone" th:field="*{phone}">
+                </div>
+                
+                
+                <div class="col-md-5">
+                	<label for="postal" class="form-label">주소</label>
+                	<input type="text" class="form-control" id="sample6_postcode" placeholder="우편번호" name="postal" th:field="*{postal}">
+                </div>
+                
+                <div class="col-md-3">
+                	<input type="button" class="btn btn-secondary" onclick="sample6_execDaumPostcode()" value="우편번호 찾기" id="postnum">
+                </div>
+                
+				<div class="col-md-6">
+                	<input type="text" class="form-control" id="sample6_address" placeholder="주소" name="address" th:field="*{address}">
+                </div>
+                
+                <div class="col-md-6">
+                	<input type="text" class="form-control" id="sample6_extraAddress" placeholder="상세주소" name="addresssec" th:field="*{addresssec}">
+                </div>
+                
+                <div class="col-md-12">
+                	<input type="text" class="form-control" id="sample6_detailAddress" placeholder="참고항목" name="note" th:field="*{note}">
+                </div>
+                
+                <div class="col-md-12">
+                  <label for="email" class="form-label">이메일</label>
+                  <input type="email" class="form-control" id="email" name="email" th:field="*{email}">
+                </div>
+                
+                
+             	<div class="col-md-12">
+                  <label for="pName" class="form-label">담당자명</label>
+                  <input type="text" class="form-control" id="pName" name="personName" th:field="*{personName}">
+                </div>
+                
+              	<div class="col-md-12">
+                  <label for="pPhone" class="form-label">담당자 번호</label>
+                  <input type="text" class="form-control" id="pPhone" name="personPhone" oninput="hypenPphone(this)" maxlength="13" th:field="*{personPhone}">
+              	</div>
+                
+              	<div class="col-md-12">
+                  <label for="pEmail" class="form-label">담당자 이메일</label>
+                  <input type="email" class="form-control" id="pEmail" name="personEmail" th:field="*{personEmail}">
+              	</div>
+                
+                
+              <div class="text-center">
+              	<button type="submit" class="btn btn-primary" id="updateBtn">수정</button>
+                <button type="reset" class="btn btn-secondary">초기화</button>
+              </div>
+              
+                
+              </form>
+              
+           
+            </div>
+          </div>
+          
+          
+        </div>
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+</body>
+</html>
+
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script type="text/javascript" src="assets/js/cyj/supplier/supplierUpdate.js"></script>

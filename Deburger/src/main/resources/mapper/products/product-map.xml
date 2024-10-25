@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.deburger.app.office.product.mapper.ProductMapper">
+	<select id="selectAllList" resultType="ProductVO">
+		select
+	        product_number,
+	        product_name,
+	        sale_unitprice,
+	        image,
+	        recipe_pdf,
+	        price,
+	        category,
+	        kind,
+	        registration_day,
+	        note
+		from product
+        where category = #{category}
+		order by product_number
+	</select>
+	
+	<select id="selectProductInfo" resultType="ProductVO">
+		select
+	        product_number,
+	        product_name,
+	        sale_unitprice,
+	        image,
+	        recipe_pdf,
+	        price,
+	        category,
+	        kind,
+	        registration_day,
+	        note
+		from product
+		where product_number = #{productNumber}
+	</select>
+	
+	<insert id="insertProductInfo" parameterType="ProductVO">
+		insert into product(
+			        PRODUCT_NUMBER,
+			        PRODUCT_NAME,
+			        SALE_UNITPRICE,
+			        IMAGE,
+			        Recipe_PDF,
+			        Price,
+			        Category,
+			        kind,
+			        REGISTRATION_DAY,
+			        Note
+		)values(
+			#{productNumber},
+			#{productName},
+			#{saleUnitprice},
+			#{image},
+			#{RecipePdf},
+			#{Price},
+			#{category},
+			#{kind},
+			#{registrationDay},
+			#{Note}
+		)
+	</insert>
+	
+	<update id="updateProduct">
+		update product
+		set  PRODUCT_NUMBER,
+	         PRODUCT_NAME,
+	         SALE_UNITPRICE,
+	         IMAGE,
+	         Recipe_PDF,
+	         Price,
+	         Category,
+	         kind,
+	         REGISTRATION_DAY,
+	         Note
+	    where PRODUCT_NUMBER = #{productNumber}
+	</update>
+	
+	<delete id="deleteProduct" parameterType="ProductVO">
+		delete
+		from product
+		where PRODUCT_NUMBER = #{productNumber}
+	</delete>
+</mapper>

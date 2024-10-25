@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layouts/shop_layout}"
+	layout:fragment="Content">
+<head>
+<meta charset="UTF-8" />
+<title>발주 관리</title>
+<style>
+.getDateControl {
+	display: inline-block;
+	width: 46%;
+	padding: .375rem .75rem;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5;
+	color: var(--bs-body-color);
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background-color: var(--bs-body-bg);
+	background-clip: padding-box;
+	border: var(--bs-border-width) solid var(--bs-border-color);
+	border-radius: var(--bs-border-radius);
+	transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+	text-align: left;
+}
+
+
+</style>
+
+</head>
+
+<body>
+	<main id="main" class="main">
+		<div class="pagetitle">
+
+			<h1>발주 리스트</h1>
+
+
+			<nav class="navbar navbar-expand-lg bg-body-t00ertiary">
+				<div class="container-fluid">
+					<!-- class="collapse navbar-collapse" -->
+					<div id="navbarSupportedContent" style="width:69%">
+						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+							<li class="nav-item" ><a class="nav-link active"
+								aria-current="page" href="ShopOrderList" style="font-weight: bold; font-size: 20px; font-family: Do Hyeon";>수동발주</a></li>
+							<li class="nav-item"><a class="nav-link active"
+								aria-current="page" href="ShopAutoOrderList" style="color: grey; font-size: 20px; font-family: Do Hyeon";>자동발주</a></li>
+						</ul>
+					</div>
+                    
+					<div id="getdate" class="d-flex justify-content-end"><span>
+						<input type="date" id="startDate" class="getDateControl p-2 bd-highlight form-control">
+						~ <input type="date" id="endDate" class="getDateControl p-2 bd-highlight  form-control "></span>
+					</div>
+					<form style="display: inline-block; value: right">
+						<button type="button" id="qnaInsert" class="btn btn-primary"
+							onClick="location.href='selectOrderCart'">발주신청</button>
+					</form>
+					
+				</div>
+			</nav>
+
+
+
+
+
+		</div>
+		<!-- End Page Title -->
+		<section class="section">
+			<div class="row">
+				<div class="col-lg-12">
+
+					<div class="card">
+						<div class="card-body">
+							<!-- Table with stripped rows -->
+							<!-- <table class="table datatable"> -->
+
+							<table class="table ">
+								<thead>
+									<tr>
+										<th data-type="date" data-format="YYYY/DD/MM">발주 일자</th>
+										<th>발주 번호</th>
+										<th>발주 이름</th>
+										<th>총 금액</th>
+										<th>담당자</th>
+										<th>이메일</th>
+										<th>연락처</th>
+										<th>진행 상태</th>
+										<th>상세내역</th>
+										<th>취소여부</th>
+									</tr>
+								</thead>
+								<tbody id="list">
+									<th:block th:each="list:${viewAll}">
+										<tr>
+											<td>[[${#dates.format(list.orderDay,'yyyy/MM/dd')}]]</td>
+											<td th:text="${list.orderNumber}" id="orderNumber" />
+											<td th:text="${list.orderName}" />
+											<td th:text="${list.allprice}" />
+											<td th:text="${list.name}" />
+											<td th:text="${list.email}">
+											<td th:text="${list.phone}">
+											<td><span
+												th:if="${list.cancelOperation == 'J2' and list.oderApp == 'L1'}">취소
+													요청</span> <span
+												th:if="${list.cancelOperation == 'J3' and list.oderApp == 'L1'}">취소
+													완료</span> <span
+												th:if="${list.cancelOperation == 'J1' and list.oderApp == 'L1'}">발주
+													승인 전</span> <span
+												th:if="${list.cancelOperation == 'J1' and list.oderApp == 'L2'}">발주
+													승인</span> <span
+												th:if="${list.cancelOperation == 'J1' and list.oderApp == 'L3'}">출고
+													완료 </span></td>
+
+											<td><button type="button" class="btn btn-primary btn-sm"
+													th:id="${list.orderNumber}" onclick="orderInfo()">상세
+													내역</button></td>
+											<td><button type="button" class="btn btn-primary btn-sm"
+													id="canclebtn"
+													th:if="${list.cancelOperation == 'J1' and list.oderApp == 'L1'}">취소
+												</button></td>
+										</tr>
+									</th:block>
+								</tbody>
+							</table>
+							<!-- End Table with stripped rows -->
+
+						</div>
+					</div>
+					<div style="display: block; text-align: center;" id="pagelist">
+						<nav aria-label="Page navigation">
+							<ul class="pagination justify-content-center">
+								<!-- Previous button -->
+								<li class="page-item"
+									th:classappend="${paging.startPage == 1} ? 'disabled'"><a
+									class="page-link"
+									th:href="@{/ShopOrderList(nowPage=${paging.startPage - 1}, cntPerPage=${paging.cntPerPage})}"
+									aria-disabled="true">&lt;</a></li>
+								<!-- Page numbers -->
+								<li class="page-item"
+									th:each="p : ${#numbers.sequence(paging.startPage, paging.endPage)}"
+									th:classappend="${p == paging.nowPage} ? 'active'"><span
+									th:if="${p == paging.nowPage}"> <a class="page-link"
+										th:text="${p}"></a>
+								</span> <span th:if="${p != paging.nowPage}"> <a
+										class="page-link"
+										th:href="@{/ShopOrderList(nowPage=${p}, cntPerPage=${paging.cntPerPage})}"
+										th:text="${p}"></a>
+								</span></li>
+								<!-- Next button -->
+								<li class="page-item"
+									th:classappend="${paging.endPage == paging.lastPage} ? 'disabled'">
+									<a class="page-link"
+									th:href="@{/ShopOrderList(nowPage=${paging.endPage + 1}, cntPerPage=${paging.cntPerPage})}">&gt;</a>
+								</li>
+							</ul>
+						</nav>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+	<script th:inline="javascript">
+	document.getElementById('startDate').value = new Date().toISOString().substring(0, 10);
+	document.getElementById('endDate').value = new Date().toISOString().substring(0, 10);
+	
+	
+	$('#getdate').on("change",function(){
+		$('#list').html('');
+		$('#pagelist').css('display', 'none');
+		
+		let startDate = $("#startDate").val();
+		let endDate =  $("#endDate").val();
+		let list = {startDate,endDate}
+		
+		$.ajax({
+			
+			url : "selectdate",
+			method : "Post",
+			contentType:"application/JSON",
+			data : JSON.stringify(list),
+			
+		}).then((result) => {
+			
+			
+			$(result).each(function(index, item){
+				
+				let spans = '';
+				if(item.cancelOperation == 'J2' && item.oderApp == 'L1'){
+					spans = "<span>취소 요청</span>";
+				}else if(item.cancelOperation == 'J3' && item.oderApp == 'L1'){
+					spans = "<span>취소 완료</span>";
+				}else if(item.cancelOperation == 'J1' && item.oderApp == 'L1'){
+					spans = "<span>발주 승인 전</span>";
+				}else if(item.cancelOperation == 'J1' && item.oderApp == 'L2'){
+					spans = "<span >발주	승인</span>";
+				}else if(item.cancelOperation == 'J1' && item.oderApp == 'L3'){
+					spans = "<span >출고	완료	</span>";
+				}
+				let btns = '';
+				if(item.cancelOperation == 'J1' && item.oderApp == 'L1'){
+					btns = '<button type="button" class="btn btn-primary btn-sm" id="canclebtn">취소	</button>';
+				}
+				
+				
+				let odnames = '';
+				if(item.orderName != null){
+					odnames = item.orderName;
+				}
+				
+				let names = '';
+				if(item.name != null){
+					names = item.name;
+				}
+				
+				let emails = '';
+				if(item.email != null){
+					emails = item.email;
+				}
+				
+				let phones = '';
+				if(item.phone != null){
+					phones = item.phone;
+				}
+				
+				
+				let dates = new Date(item.orderDay);
+				const year = dates.getFullYear(); 
+				const month = (dates.getMonth() + 1).toString().padStart(2, '0'); 
+				const day = dates.getDate().toString().padStart(2, '0');
+
+				const yyyymmdd = `${year}/${month}/${day}`;
+				
+				let tr = `<tr>
+				<td>${yyyymmdd}</td>
+				<td>${item.orderNumber}</td>
+				<td>${odnames}</td>
+				<td>${item.allprice}</td>
+				<td>${names}</td>
+				<td>${emails}</td>
+				<td>${phones}</td>
+				<td>${spans}</td>
+				<td><button type="button" class="btn btn-primary btn-sm" id="${item.orderNumber}"
+					onclick="orderInfo()">상세 내역</button></td>					
+				<td>${btns}</td>
+				</tr>`
+				
+				$('#list').append(tr)
+				
+				
+			})
+			
+			
+			$("#canclebtn").on("click",function(event){		
+				Swal.fire({
+		            title: '발주를 취소하시겠습니까?',
+		            text: "",
+		            icon: 'warning',
+		            showCancelButton: true,
+		            confirmButtonColor: '#3085d6',
+		            cancelButtonColor: '#d33',
+		            confirmButtonText: '승인',
+		            cancelButtonText: '취소'
+		            })
+		            .then((result)=>{
+		            	$.ajax({
+		        			url : "updateOrderCancel?orderNumber="+$(event.target).closest('tr').children().eq(1).text(),
+		        			method : "POST",
+		        			
+		        		}).then((end) => {
+		        			location.href="ShopOrderList"
+		        		})
+		            })
+				
+			})
+			
+			function orderInfo(){
+				
+				let url ='ShopOrderInfo?orderNumber=' + event.target.id;
+				location.href = url;
+			}
+		})
+		
+	})
+	
+	
+	$("#canclebtn").on("click",function(event){	
+		
+		Swal.fire({
+            title: '발주를 취소하시겠습니까?',
+            text: "",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '승인',
+            cancelButtonText: '취소'
+            })
+            .then((result)=>{
+            	$.ajax({
+        			url : "updateOrderCancel?orderNumber="+$(event.target).closest('tr').children().eq(1).text(),
+        			method : "POST",
+        			
+        		}).then((end) => {
+        			location.href="ShopOrderList"
+        		})
+            })
+				
+	})
+	
+	function orderInfo(){
+		
+		let url ='ShopOrderInfo?orderNumber=' + event.target.id;
+		location.href = url;
+	}
+
+
+
+	</script>
+</body>
+
+</html>

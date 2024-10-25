@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.deburger.app.office.container.mapper.ContainerMapper">
+	
+	<!-- 전체 조회 -->
+	<select id="selectAllList" resultType="ContainerVO">
+			            <![CDATA[
+						      SELECT  b.* 
+						      FROM
+						          (    
+						            SELECT ROWNUM R, a.*    
+						            FROM (
+						
+						            select a.material_number,
+												       a.stock_count,
+												       a.logistics_id,
+												       b.material_classification,
+												       b.logistics_safety_stock,
+												       b.material_name,
+												       c.person_id	
+												from logistics_stock a
+									  			  join material b
+									       			 on a.material_number = b.material_number
+									       		  join logistics c
+									       		  	 on a.logistics_id = c.logistics_id			       		
+									                	where stock_count >=  0	
+									                	and c.person_id = #{personId}		
+									       		order by a.material_number
+												
+						                  ) a
+						        WHERE ROWNUM <= (#{pageNum} * #{amount})            
+						      ) b
+						      WHERE R > (#{pageNum}-1) * #{amount}
+							]]>	
+	</select>
+	
+	<select id="selectAllListcount">	
+		    SELECT COUNT(a.stock_count) AS cnt
+		    FROM logistics_stock a
+		    JOIN logistics b
+		      ON a.logistics_id = b.logistics_id
+		      where stock_count <![CDATA[>=]]>  0
+		    and b.person_id =  #{personId}
+
+	</select>
+	
+	<!-- 상세 조회  			and b.disposal_operation = 'N' -->
+	<select id="selectContainerInfo" resultType="ContainerVO">
+				select distinct
+			         a.details_order_number,
+			         a.count,
+			         a.order_condition,
+                     a.in_operation,
+                     a.person_id,
+			         b.lot,
+			     	 b.in_day,
+				     b.in_count,
+                     b.out_count,
+				     b.expiration_limit,
+				     c.material_number,
+				     c.material_name,
+			         d.logistics_id,
+			         d.client_id
+			from logistics_order_details a
+			join logistics_in b
+				on a.details_order_number = b.details_order_number
+			join material c
+				on a.material_number = c.material_number 
+			join logistics_order d
+				on a.order_number = d.order_number
+			where c.material_number = #{materialNumber}
+            and b.in_count - b.out_count != 0
+			order by b.expiration_limit
+	</select>
+	
+		<!-- 입고 조회 -->
+	<select id="selectAllInList" resultType="ContainerVO">
+			select a.order_number,
+			        a.note,
+			        a.client_id,
+			        b.order_condition,
+			        b.person_id,
+			        b.in_operation,
+			        c.logistics_id,
+			        d.client_name,
+			        sum(b.count) as sum
+			from logistics_order a
+			join logistics_order_details b
+			        on a.order_number = b.order_number
+			join logistics c
+			        on a.logistics_id  = c.logistics_id
+			join supplier d
+			        on a.client_id = d.client_id
+			where  c.logistics_id = #{logisticsId}
+			and b.in_operation = 'f1'        
+			group by a.order_number,
+			        a.note,
+			        a.client_id,
+			        b.order_condition,
+			        b.person_id,
+			        b.in_operation,
+			        c.logistics_id,
+			        d.client_name
+			order by a.order_number desc
+	</select>
+	
+	
+	<select id="countInsertList">
+		select a.order_number,
+			        a.note,
+			        a.client_id,
+			        b.order_condition,
+			        b.person_id,
+			        b.in_operation,
+			        c.logistics_id,
+			        d.client_name,
+			        sum(b.count) as sum
+			from logistics_order a
+			join logistics_order_details b
+			        on a.order_number = b.order_number
+			join logistics c
+			        on a.logistics_id  = c.logistics_id
+			join supplier d
+			        on a.client_id = d.client_id
+			where  c.logistics_id = (select area
+                                      from person
+                                      where person_id = #{personId})
+			and b.in_operation = 'f1'        
+			group by a.order_number,
+			        a.note,
+			        a.client_id,
+			        b.order_condition,
+			        b.person_id,
+			        b.in_operation,
+			        c.logistics_id,
+			        d.client_name
+			order by a.order_number desc	
+	</select>
+	
+	<!-- 입고 처리 조회 -->
+	<select id="selectInInfoList" resultType="ContainerVO" parameterType="list">
+		select  distinct
+				a.details_order_number,
+		        a.count,
+		        a.unit,
+		        a.order_cost,
+		        b.order_number,
+                b.client_id,
+		        c.logistics_id,
+		        c.logistics_name,
+		        c.phone as logisticsPhone,
+		        c.person_id,
+		        d.material_name,
+        		e.material_number,
+                f.client_name,
+                f.phone,
+                f.email
+		from  logistics_order_details a
+		join logistics_order b
+		        on a.order_number = b.order_number
+		join logistics c
+		        on b.logistics_id = c.logistics_id
+		join material d
+		        on a.material_number = d.material_number
+		join company_material e
+         		on d.material_number = e.material_number
+        join supplier f
+                on b.client_id = f.client_id
+		where b.order_number = #{orderNumber}
+	</select>
+	
+	<!-- 입고 처리 Transaction-->
+	<insert id="containerInInsert">
+		 insert into logistics_in(
+			        lot,
+			        details_order_number,
+			        in_day,
+			        in_count,
+			        expiration_limit,
+			        consumption_limit,
+			        manufacture_day,
+			        inspection_operation,
+			        person_id,
+			        logistics_id,
+			        material_number,
+			        out_count,
+			        disposal_operation
+		 )values(
+		      'LOT' || LPAD(LOT_SEQ.nextval, '7', '0'), 
+		      #{detailsOrderNumber},
+		      #{inDay},
+		      #{inCount},
+	          #{expirationLimit},
+	          #{consumptionLimit},
+	          #{manufactureDay},
+	          #{inspectionOperation},
+	          #{personId},
+	          #{logisticsId},
+	          #{materialNumber}, 
+	          0,
+	          'd1'          
+		 )
+	</insert>
+	<!--  머지 있으면 update, 없으면 insert -->
+	<update id="logisticsStockin">
+		merge
+		    into logistics_stock a
+		    using dual
+		        on (a.material_number = #{materialNumber} and a.logistics_id = #{logisticsId}) 
+		    when matched then
+		        update 
+				set a.stock_count = a.stock_count + #{stockCount}
+		    when not matched then
+		        insert(
+		            a.stock_number,
+		            a.stock_count,
+		            a.logistics_id,
+		            a.material_number
+		        )values(
+		            'INV' || LPAD(INV_SEQ.nextval, 7, '0'),
+		            #{stockCount},
+		           	#{logisticsId},
+		          	#{materialNumber}
+		        )
+	</update>
+	
+	<update id="containerInUpdate">
+		update logistics_order_details
+ 		set in_operation = #{inOperation}
+ 		where details_order_number = #{detailsOrderNumber}
+	</update>
+	
+	
+	<!-- 물류 창고 폐기 조회 -->
+	<select id="ContainerDeleteInfo" resultType="ContainerVO">
+			select distinct
+			         a.details_order_number,
+			         a.count,
+			         a.order_condition,
+                     a.in_operation,
+                     a.person_id,
+			         b.lot,
+			     	 b.in_day,
+				     b.in_count,
+				     b.out_count,
+				     c.material_number,
+				     c.material_name,
+			         d.logistics_id,
+			         d.client_id
+			from logistics_order_details a
+			join logistics_in b
+				on a.details_order_number = b.details_order_number
+			join material c
+				on a.material_number = c.material_number 
+			join logistics_order d
+				on a.order_number = d.order_number
+			where b.lot = #{lot}
+	</select>
+
+	
+	<!-- 물류 창고 폐기 처리 -->
+	<insert id="containerOutInsert" parameterType="ContainerVO">
+		insert into logistics_out(
+		    logistics_out_number,
+		    out_date,
+		    logistics_id,
+		    inspection,
+		    out_count,
+		    note,
+		    out_operation,
+		    lot
+		)values(
+		        'DV' || LPAD(DV_SEQ.nextval, '7', '0'),    
+		        #{outDate},  
+		        #{logisticsId},
+		        'h2',
+		        #{outCount},
+		        #{note},
+		        #{outOperation},
+		        #{lot}
+		)
+	</insert>
+	
+	<update id="containerInupdate">
+		update logistics_in
+		set out_count = out_count + #{outCount},
+			disposal_operation = #{disposalOperation}
+		where lot = #{lot}
+	</update>
+	
+	<update id="stockDelete">
+		update logistics_stock
+		set stock_count = stock_count - #{outCount}
+		where material_number = #{materialNumber}
+		and logistics_id = #{logisticsId}
+	</update>
+	
+	<!-- 물류창고 출고 리스트 -->
+	<select id="containerOuts">
+	
+			<![CDATA[
+			      SELECT  b.* 
+			      FROM
+			          (    
+			            SELECT ROWNUM R, a.*    
+			            FROM (
+							select a.order_number,
+							        sum(b.count) as count,
+							        a.oder_app,
+							        c.logistics_id,
+							        c.store_name,
+                                    e.out_operation
+							from store_order a
+							join order_details b
+							    on a.order_number = b.order_number
+							join store c
+							    on a.store_number = c.store_number
+                            join logistics d
+                                on c.logistics_id = d.logistics_id
+                            join logistics_out e
+                                on b.order_details_number = e.order_details_number
+							where a.oder_app = 'L3'
+                            and d.person_id = #{personId}
+                            and e.out_operation = 'g2'
+							group by a.order_number,
+							        a.oder_app,
+							        c.logistics_id,
+							        c.store_name,
+                                    e.out_operation
+                            order by a.order_number desc
+			                  ) a
+			        WHERE ROWNUM <= (#{pageNum} * #{amount})            
+						      ) b
+					WHERE R > (#{pageNum}-1) * #{amount}
+			]]>	
+	</select>
+	
+	<!-- count -->
+	<select id ="containerOutsCount">
+		 select distinct
+	    count(*) 
+	    from store_order a
+	        join logistics b
+            on a.logistics_id = b.logistics_id
+        where a.oder_app = 'L3'
+        and b.person_id = #{personId}
+	</select>
+	
+	
+	<!-- 물류창고 출고 처리 리스트 -->
+	<select id="containerOutList">
+		select a.order_number,
+		        sum(b.count) as count,
+		        a.oder_app,
+		        c.logistics_id,
+		        c.store_name,
+                d.person_id
+		from store_order a
+		join order_details b
+		    on a.order_number = b.order_number
+		join store c
+		    on a.store_number = c.store_number
+        join logistics d
+            on c.logistics_id = d.logistics_id
+		where a.oder_app = 'L2'
+        and d.person_id = #{personId}
+		group by a.order_number,
+		        a.oder_app,
+		        c.logistics_id,
+		        c.store_name,
+                d.person_id
+		order by a.order_number desc
+	</select>
+	
+	<!-- 출고 상세 조회-->
+	<select id="containerOutListInfo">
+	
+		select distinct
+                a.order_details_number,
+		        a.material_number,
+		        a.order_number,
+		        a.count,
+		        b.material_name,
+		        b.unit,
+		        c.store_number,
+		        d.store_name,
+		        d.phone,
+		        d.email,
+                e.inspection,
+                f.logistics_name,
+                f.phone as logisticsPhone
+		from order_details a
+		join material b
+		    on a.material_number = b.material_number
+		join store_order c
+		    on  a.order_number = c.order_number
+		join store d
+		    on c.store_number = d.store_number
+        left outer join logistics_out e
+            on a.order_details_number = e.order_details_number
+        left outer join logistics f
+            on d.logistics_id = f.logistics_id
+		where a.order_number = #{orderNumber}
+	
+	</select>
+	<!-- 출고 상세 조회 모달 -->
+	<select id="containerOutModal">
+		select a.lot,
+		       a.in_count,
+		       a.out_count,
+			   a.in_day,
+			   a.expiration_limit,
+			   b.details_order_number,
+			   c.material_number,
+			   c.material_name
+		from logistics_in a
+			join logistics_order_details b
+			on a.details_order_number = b.details_order_number
+			join material c
+			on b.material_number = c.material_number
+		where c.material_number = #{materialNumber}
+		and a.in_count - a.out_count != 0	
+		order by a.expiration_limit	
+	</select>
+
+	<insert id="containerOutDB">
+		insert into logistics_out(
+			    logistics_out_number,
+			    out_date,
+			    logistics_id,
+			    inspection,
+			    out_count,
+			    lot
+		)values(
+			   #{logisticsOutNumber},
+			   #{outDate},
+			   #{logisticsId},
+			   #{inspection},
+			   #{outCount},
+			   #{lot}
+		)
+	</insert>
+
+	<update id="containerOutUp">
+	</update>
+
+	<!-- 출고 프로 시저 -->
+	<insert id="containerOutprocedure" statementType="CALLABLE"
+	parameterType="ContainerVO">
+		{
+			call logistics_out_p(
+				#{pNumber, mode=IN, jdbcType=VARCHAR},
+				#{pOutOperation, mode=IN, jdbcType=VARCHAR},
+				#{pInspection, mode=IN, jdbcType=VARCHAR},
+				#{result, mode=OUT, jdbcType=INTEGER}
+			)
+		}
+	</insert>
+	
+	<!-- 로그인 session -->
+	<select id="loginSession" resultType="ContainerVO">
+		select  a.person_id,
+		        a.name,
+		        a.email,
+		        a.phone,
+		        a.area,
+		        a.department,
+		        a.position,
+                b.logistics_name,
+                b.logistics_id
+		from person a
+             join logistics b
+                on a.area = b.logistics_id
+		where a.person_id = #{personId}
+	</select>
+	
+
+</mapper>

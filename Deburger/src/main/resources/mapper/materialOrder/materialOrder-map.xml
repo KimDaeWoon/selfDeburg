@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.deburger.app.office.materialOrder.mapper.MaterialOrderMapper">
+
+<!-- 물류창고 발주 -> 물류창고 발주 상세 시작 -->
+	<insert id="insertLogisticOrder" parameterType="MaterialOrderVO">
+		<selectKey keyProperty="orderNumber" resultType="MaterialOrderVO" order="BEFORE">
+			SELECT  'OD' || LPAD(OD_SEQ.nextval, '7', '0') ORDER_NUMBER
+			from dual
+		</selectKey>
+		INSERT INTO logistics_order(
+				ORDER_NUMBER
+				,ORDER_DAY
+				,LOGISTICS_ID
+				,CLIENT_ID)
+		VALUES(
+				#{orderNumber}
+				,SYSDATE
+				,#{logisticsId}
+				,#{clientId}
+				)	
+	</insert>
+	
+	<insert id="insertLogisticOrderDetail">
+	INSERT INTO logistics_order_details
+	            (
+				DETAILS_ORDER_NUMBER
+				,COUNT
+				,UNIT
+				,MATERIAL_NUMBER
+				,ORDER_NUMBER
+				,PERSON_ID
+				,IN_OPERATION
+				,ORDER_COST
+				,ORDER_CONDITION
+				)
+		VALUES (
+				 'DOD' || LPAD(DOD_SEQ.nextval, '7', '0')
+				,#{count}
+				,#{unit}
+				,#{materialNumber}
+				,#{orderNumber}
+				,#{personId}
+				,'f1'
+				,#{orderCost}
+				,'c1'			
+				)		
+	</insert>
+<!-- 물류창고 발주 -> 물류창고 발주 상세 끝 -->
+
+
+	<select id="selectSupplierList">	
+	SELECT  CLIENT_ID
+	        ,CLIENT_NAME
+	        ,ADDRESS
+	        ,PHONE
+	        ,CONTRACT_DAY
+	        ,POSTAL
+	        ,ADDRESSSEC
+	        ,NOTE
+	        ,BUSINESSNUM
+	        ,BUSINESSTYPE
+	        ,EMAIL
+	        ,REPRESENTATIVE_NAME
+	        ,CONTRACT_PDF
+	        ,PERSON_NAME
+	        ,PERSON_PHONE
+	        ,PERSON_EMAIL 
+	FROM supplier
+	</select>
+	
+	<select id="selectLogisticsList">
+	SELECT  LOGISTICS_ID
+	        ,LOGISTICS_NAME
+	        ,BASICS_ADDRESS
+	        ,DETAILS_ADDRESS
+	        ,POSTAL
+	        ,PHONE
+	        ,PERMISSION_DAY
+	        ,PERSON_ID
+	        ,NOTE
+	FROM   logistics	
+	</select>
+
+	<select id="selectSupplierListOptions">
+	SELECT  s.CLIENT_ID
+	        ,s.CLIENT_NAME
+	        ,c.material_number
+	        ,m.material_name
+	        ,m.cost
+	        ,m.sale_unitprice
+	        ,m.unit
+	        ,m.buy_unitprice
+	FROM supplier s JOIN company_material c
+	                ON s.client_id = c.client_id
+	                JOIN material m
+	                ON c.material_number = m.material_number
+	WHERE s.client_id = #{clientId}
+	</select>
+	
+	<select id="selectMaterialOrder">
+	SELECT o.order_day
+	     , o.order_number
+	     , o.logistics_id
+	     , s.client_name
+	     , d.person_id
+	     , p.name
+	     , count(d.count) count
+	     , d.order_condition inOperation 
+	     , l.logistics_name
+	FROM logistics_order o JOIN logistics_order_details d
+	                         ON o.order_number = d.order_number
+	                       JOIN logistics l
+	                         ON o.logistics_id= l.logistics_id
+	                       JOIN supplier s
+	                         ON o.client_id = s.client_id
+	                       JOIN person p
+	                         ON d.person_id = p.person_id
+	GROUP BY o.order_day
+	     , o.order_number
+	     , o.logistics_id
+	     , s.client_name
+	     , d.person_id
+	     , p.name
+	     , d.order_condition  
+	     , l.logistics_name
+	ORDER BY o.order_number desc
+	</select>
+	
+	<select id="selectMaterialOrderInfo">
+	SELECT o.order_day
+	     , o.order_number
+	     , o.logistics_id
+	     , s.client_name
+	     , s.email
+	     , s.phone
+	     , d.person_id
+	     , p.name
+	     , d.count
+	     , d.order_condition inOperation 
+	     , d.unit
+	     , d.order_cost cost
+	     , l.logistics_name
+	     , l.phone phone_log
+	     , m.buy_unitprice
+	     , m.buy_unitprice * 0.1 tax
+	     , m.material_name
+	FROM logistics_order o JOIN logistics_order_details d
+	                         ON o.order_number = d.order_number
+	                       JOIN logistics l
+	                         ON o.logistics_id= l.logistics_id
+	                       JOIN supplier s
+	                         ON o.client_id = s.client_id
+	                       JOIN person p
+	                         ON d.person_id = p.person_id
+	                       JOIN material m
+	                         ON d.material_number = m.material_number
+	WHERE o.order_number = #{orderNumber}
+	</select>
+	
+
+
+
+
+
+<!-- 물류창고 발주 시작 -->
+
+</mapper>
+
+
+
+<!-- 물류 창고 폐기 처리 
+	<insert id="containerOutInsert" parameterType="ContainerVO">
+		insert into logistics_out(
+		    logistics_out_number,
+		    out_date,
+		    logistics_id,
+		    out_count,
+		    note,
+		    out_operation,
+		    lot
+		)values(
+		        'DV' || LPAD(DV_SEQ.nextval, '7', '0'),    
+		        #{outDate},  
+		        #{logisticsId},
+		        #{outCount},
+		        #{note},
+		        #{outOperation},
+		        #{lot}
+		)
+	</insert>
+	
+	<update id="containerInupdate">
+		update logistics_in
+		set out_count = #{outCount},
+			disposal_operation = #{disposalOperation}
+		where lot = #{lot}
+	</update>
+
+-->
+

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<th:block xmlns:th="http://www.thymeleaf.org/"
+		  th:fragment="SidebarFrag">
+
+<!-- ======= Sidebar(가맹점) ======= -->
+  <aside id="sidebar" class="sidebar">
+
+    <ul class="sidebar-nav" id="sidebar-nav">
+
+	<!-- 
+		End Dashboard Nav
+      <li class="nav-item">
+        <a class="nav-link " href="index.html">
+          <i class="bi bi-grid"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+	-->
+      
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+          <i class="fa-solid fa-burger"></i><span>상품 관리</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a th:href="@{shopproducts}">
+              <span>상품 목록</span>
+            </a>
+          </li>
+          <li>
+            <a href="shopStock">
+              <span>재고 관리</span>
+            </a>
+          </li>
+          <li>
+            <a th:href="@{StoreSale}">
+              <span>판매 리스트</span>
+            </a>
+          </li>
+        </ul>
+      </li><!-- End Forms Nav -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+          <i class="fa-solid fa-truck"></i><span>발주/입고 관리</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="ShopOrderList">
+              <span>발주 관리</span>
+            </a>
+          </li>
+          <li>
+            <a href="storeInList">
+
+<span>입고 관리</span>
+            </a>
+          </li>
+                    <li>
+            <a href="stockInList">
+              <span>입고 조회</span>
+        </a>
+          </li>
+        </ul>
+      </li><!-- End Tables Nav -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#qsc-nav" data-bs-toggle="collapse" href="#">
+          <i class="fa-solid fa-list-check"></i><span>QSC 관리</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="qsc-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a th:href="@{qscListShop}">
+              <span>QSC 관리</span>
+            </a>
+          </li>
+        </ul>
+      </li><!-- End Charts Nav -->
+
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
+          <i class="fa-solid fa-chart-simple"></i><span>통계</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="StoreProSaleList">
+              <span>제품 판매량</span>
+            </a>
+          </li>
+          <li>
+            <a href="StoreMaterialConList">
+              <span>재료 소비량</span>
+            </a>
+          </li>
+        </ul>
+      </li><!-- End Components Nav -->
+      
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
+          <i class="fa-solid fa-file-pen"></i><span>공지/QnA</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a th:href="@{noticeListShop}">
+              <span>공지 사항</span>
+            </a>
+          </li>
+          <li>
+            <a th:href="@{qnaListShop}">
+              <span>QnA</span>
+            </a>
+          </li>
+        </ul>
+      </li><!-- End Charts Nav -->
+    </ul>
+
+  </aside><!-- End Sidebar-->

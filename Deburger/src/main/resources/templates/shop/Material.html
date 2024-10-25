@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org/"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layouts/shop_layout}"
+  layout:fragment="Content"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>재료 통계</title>
+  </head>
+
+  <body>
+    <main id="main" class="main">
+      <div class="pagetitle">
+        <h1>재료 판매 통계</h1>
+      </div>
+      <!-- End Page Title -->
+      <section class="section">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <input
+                  type="date"
+                  id="currentDate"
+                  class="form-control"
+                  style="margin-top: 10px"
+                />
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>재료 이름</th>
+                      <th>카테고리</th>
+                      <th>
+                        <select id="stockC" class="form-select">
+                          <option value="main">품목 구분</option>
+                          <option
+                            th:each="stockCList : ${stockC}"
+                            th:value="${stockCList.materialClassification}"
+                            th:text="${stockCList.materialClassification}"
+                          ></option>
+                        </select>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="list">
+                    <th:block th:each="list:${StoreMaterialConList}">
+                      <tr>
+                        <td
+                          style="display: none"
+                          th:text="${list.materialNumber}"
+                        />
+                        <td th:text="${list.materialName}" />
+                        <td th:text="${list.materialItem}" />
+                        <td th:text="${list.materialClassification}" />
+                      </tr>
+                    </th:block>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div id="graphs"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script th:inline="javascript">
+      document.getElementById("currentDate").value = new Date()
+        .toISOString()
+        .substring(0, 10);
+
+      var num = "";
+      $("tbody > tr").on("click", function (event) {
+        num = $(event.target).closest("tr").children().eq(0).html();
+        regr();
+      });
+
+      $("#currentDate").on("change", function (event) {
+        regr();
+      });
+
+      function regr() {
+        let list = {};
+
+        let materialNumber = num;
+        let productdate = $("#currentDate").val();
+
+        let url = `StoreMaterialoneList?materialNumber=${materialNumber}&productDate=${productdate}`;
+
+        $("#graphs").load(url);
+      }
+
+      $("#stockC").on("change", function () {
+        let materialClassification = $("#stockC").val();
+
+        if (materialClassification == "main") {
+          location.href = "StoreMaterialConList";
+        } else {
+          let list = { materialClassification };
+          $.ajax({
+            url: "classificationListMa",
+            method: "Post",
+            contentType: "application/JSON",
+            data: JSON.stringify(list),
+          }).then((result) => {
+            $("#list").html("");
+
+            $(result).each(function (index, item) {
+              console.log(item);
+
+              let tr = `<tr>
+						<td style="display: none;" >${item.materialNumber}</td>
+						<td>${item.materialName}</td>
+						<td>${item.materialItem}</td>
+						<td>${item.materialClassification}</td>
+						</tr>`;
+
+              $("#list").append(tr);
+            });
+
+            $("tbody > tr").on("click", function (event) {
+              num = $(event.target).closest("tr").children().eq(0).html();
+              regr();
+            });
+
+            $("#currentDate").on("change", function (event) {
+              regr();
+            });
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
