@@ -122,7 +122,7 @@
 			        on a.logistics_id  = c.logistics_id
 			join supplier d
 			        on a.client_id = d.client_id
-			where  c.logistics_id = (select area
+			where  c.logistics_id in (select area
                                       from person
                                       where person_id = #{personId})
 			and b.in_operation = 'f1'        
