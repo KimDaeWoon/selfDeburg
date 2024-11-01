@@ -2,6 +2,8 @@ package com.deburger.app.office.container.web;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,9 +18,11 @@ import com.deburger.app.office.container.service.ContainerVO;
 import com.deburger.app.office.logistic.service.Criteria;
 import com.deburger.app.office.logistic.service.PageDTO;
 
+
 @Controller
 public class ContainerController {
 
+	 private static final Logger logger = LoggerFactory.getLogger(ContainerController.class);
 	public ContainerService containerService;
 
 	@Autowired
@@ -29,6 +33,8 @@ public class ContainerController {
 	// 전체 조회
 	@GetMapping("container")
 	public String containerList(Criteria criteria, Model model) {
+		long startTime = System.currentTimeMillis();
+		
 		// 담당 물류 창고 이름
 		ContainerVO mid = new ContainerVO();
 		String mcode = SecurityUtil.memberCode(); // id
@@ -41,6 +47,8 @@ public class ContainerController {
 		// list;
 		ContainerVO pid = containerService.loginService(mid);
 
+		long endTime = System.currentTimeMillis();
+		logger.info("Excution time:" + (endTime - startTime) + "ms");
 		model.addAttribute("containers", list);
 		model.addAttribute("persons", pid);
 		model.addAttribute("pageMaker", new PageDTO(containerService.containerAllCount(mid), 5, criteria));

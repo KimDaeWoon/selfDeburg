@@ -2,6 +2,7 @@ package com.deburger.app.office.container.service.impl;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +20,7 @@ public class ContainerServiceImpl implements ContainerService {
 
 	// 물류 창고 전체 조회
 	@Override
-	// @Transactional
+	@Cacheable(value = "materialCache", key = "'materialList'")
 	public List<ContainerVO> containerAllList(ContainerVO containerVO) {
 		// TODO Auto-generated method stub
 		return containerMapper.selectAllList(containerVO);
