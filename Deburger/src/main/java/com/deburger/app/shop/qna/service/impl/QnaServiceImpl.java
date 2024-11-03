@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +14,16 @@ import com.deburger.app.shop.qna.mapper.QnaMapper;
 import com.deburger.app.shop.qna.service.QnaService;
 import com.deburger.app.shop.qna.service.QnaVO;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
 @Service
 public class QnaServiceImpl implements QnaService {
 
 	private QnaMapper mapper;
+	
+	private RedisTemplate<String, Object> redisTemplate;
 	
 	@Autowired
 	QnaServiceImpl(QnaMapper mapper){
@@ -87,10 +94,22 @@ public class QnaServiceImpl implements QnaService {
 	//글 등록(가맹점)
 	@Override
 	public int qnaShopInsert(QnaVO qnaVO) {
-		String mcode = SecurityUtil.memberCode();//storeNumber
-		qnaVO.setStoreNumber(mcode);
-		int result = mapper.qnaShopInsert(qnaVO);
-		return result;
+	    String mcode = SecurityUtil.memberCode(); // storeNumber
+	    qnaVO.setStoreNumber(mcode);
+
+	    // 데이터베이스에 삽입 및 시간 측정
+	    long dbStartTime = System.currentTimeMillis();
+	    int dbResult = mapper.qnaShopInsert(qnaVO);
+	    long dbEndTime = System.currentTimeMillis();
+	    System.err.println("DB Insert Time: " + (dbEndTime - dbStartTime) + "ms");
+
+	    // Redis에 삽입 및 시간 측정
+	    long redisStartTime = System.currentTimeMillis();
+	    redisTemplate.opsForHash().put("qnaData", qnaVO.getStoreNumber(), qnaVO);
+	    long redisEndTime = System.currentTimeMillis();
+	    System.err.println("Redis Insert Time: " + (redisEndTime - redisStartTime) + "ms");
+
+	    return dbResult;
 	}
 
 	//QnA상세 조회(가맹점) 

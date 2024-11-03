@@ -2,6 +2,7 @@ package com.deburger.app.office.materialOrder.service.impl;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,8 +68,9 @@ public class MaterialOrderServiceImpl implements MaterialOrderService {
 	}
 
 	@Override
+	//@Cacheable(value = "materialOrderCache", key = "'materialOrderList'")
 	public List<MaterialOrderVO> selectMaterialOrder() {
-		// TODO Auto-generated method stub
+		// DB에서 물류 주문 데이터를 조회
 		return materialOrderMapper.selectMaterialOrder();
 	}
 

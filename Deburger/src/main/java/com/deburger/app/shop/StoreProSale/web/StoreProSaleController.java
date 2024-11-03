@@ -23,15 +23,20 @@ public class StoreProSaleController {
 		this.storeProSaleService = storeProSaleService;
 	}
 
+	
 	@GetMapping("StoreProSaleList")
 	public String StoreProSaleList(Model model) {
-
+		long startTime = System.currentTimeMillis();
+		
 		List<StoreProSaleVO> list = storeProSaleService.StoreProSaleList();
 		List<StoreProSaleVO> list2 = storeProSaleService.stockClassification();
 		
 		model.addAttribute("stockC", list2);
 		model.addAttribute("StoreProSaleList", list);
-
+		
+		long endTime = System.currentTimeMillis(); // 종료 시간 측정
+	    System.out.println("Execution Time: " + (endTime - startTime) + "ms");
+	    System.err.println("------------------------------------------------------------------------------------------------");
 		return "shop/product";
 	}
 

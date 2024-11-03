@@ -64,9 +64,16 @@ public class MaterialOrderController {
 	
 	@GetMapping("selectMaterialOrder")
 	public String selectMaterialOrder(Model model) {
-		List<MaterialOrderVO> list = materialOrderService.selectMaterialOrder();
-		model.addAttribute("Orders", list);
-		return "office/materialOrder/selectMaterialOrder";
+	    long startTime = System.currentTimeMillis(); // 시작 시간 측정
+
+	    List<MaterialOrderVO> list = materialOrderService.selectMaterialOrder();
+	    model.addAttribute("Orders", list);
+
+	    long endTime = System.currentTimeMillis(); // 종료 시간 측정
+	    System.out.println("Execution Time: " + (endTime - startTime) + "ms");
+	    System.err.println("------------------------------------------------------------------------------------------------");
+
+	    return "office/materialOrder/selectMaterialOrder";
 	}
 	
 	//물류창고 발주 등록 페이지

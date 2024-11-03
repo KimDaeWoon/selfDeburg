@@ -49,6 +49,7 @@ public class ContainerController {
 
 		long endTime = System.currentTimeMillis();
 		logger.info("Excution time:" + (endTime - startTime) + "ms");
+		System.err.println("-----------------------------------------------------------------------------------------------------------");
 		model.addAttribute("containers", list);
 		model.addAttribute("persons", pid);
 		model.addAttribute("pageMaker", new PageDTO(containerService.containerAllCount(mid), 5, criteria));

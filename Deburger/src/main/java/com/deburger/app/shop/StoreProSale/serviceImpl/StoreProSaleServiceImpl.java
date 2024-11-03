@@ -3,6 +3,7 @@ package com.deburger.app.shop.StoreProSale.serviceImpl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.deburger.app.main.login.config.SecurityUtil;
@@ -21,6 +22,7 @@ public class StoreProSaleServiceImpl implements StoreProSaleService {
 	}
 
 	@Override
+	//@Cacheable(value = "StoreProSaleListCache", key = "'StoreProSaleList'")
 	public List<StoreProSaleVO> StoreProSaleList() {
 		// TODO Auto-generated method stub
 
@@ -42,6 +44,7 @@ public class StoreProSaleServiceImpl implements StoreProSaleService {
 	}
 	
 	@Override
+	//@Cacheable(value = "stockClassificationCache", key = "'stockClassification'")
 	public List<StoreProSaleVO> stockClassification() {
 		// TODO Auto-generated method stub
 		return storeProSaleMapper.stockClassification();
